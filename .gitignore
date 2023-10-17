@@ -75,3 +75,6 @@ logs/
 
 # pyenv
 .python-version
+
+
+secret.py
