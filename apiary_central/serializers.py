@@ -82,34 +82,12 @@ class HiveSerializer(serializers.ModelSerializer):
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
     hive = serializers.PrimaryKeyRelatedField(queryset=Hive.objects.all(), required=False, allow_null=True)
-    # optional_fields = ['hive']
 
     class Meta:
         model = Sensor
         fields = ['uuid', 'type', 'created_at', 'token_last_refreshed', 'hive']
 
-    
-
-    # def create(self, validated_data):
-    #     print("Debug: Starting Sensor creation...")
-
-    #     # Extracting hive if present in the data
-    #     hive = validated_data.pop('hive', None)
-    #     print(f"Debug: Hive from validated_data: {hive}")
-
-    #     # Create the Sensor instance
-    #     sensor = Sensor.objects.create(**validated_data)
-    #     print(f"Debug: Created Sensor with ID: {sensor.id}")
-
-    #     # If hive is provided, associate it with the Sensor
-    #     if hive:
-    #         sensor.hive = hive
-    #         sensor.save()
-    #         print(f"Debug: Associated Sensor with Hive ID: {hive.id}")
-    #     else:
-    #         print("Debug: No hive provided. Sensor created without hive association.")
-
-    #     return sensor
+        
 
 
 
