@@ -73,8 +73,7 @@ class HiveSerializer(serializers.ModelSerializer):
                 instance.components.add(component)
             except HiveComponent.DoesNotExist:
                 raise serializers.ValidationError(f"Invalid component type: {component_type}")
-                pass
-
+  
         return instance
 
 
@@ -87,9 +86,22 @@ class SensorSerializer(serializers.ModelSerializer):
         model = Sensor
         fields = ['uuid', 'type', 'created_at', 'token_last_refreshed', 'hive']
 
-        
 
+class SensorDataSerializer(serializers.ModelSerializer):
+    sensor = serializers.PrimaryKeyRelatedField(read_only=True)
+    class Meta:
+        model = SensorData
+        fields = ['sensor', 'timestamp', 'value']
 
+## for bulk uploads from apiaries
+class SensorDataItemSerializer(serializers.Serializer):
+    value = serializers.FloatField()
+
+## for bulk uploads from apiaries
+class SensorDataUploadSerializer(serializers.Serializer):
+    hive_id = serializers.IntegerField()
+    timestamp = serializers.DateTimeField()
+    sensors = serializers.DictField(child=SensorDataItemSerializer())
 
 
 

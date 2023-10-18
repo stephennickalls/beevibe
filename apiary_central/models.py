@@ -53,7 +53,7 @@ class Sensor(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_reading = models.FloatField(null=True, blank=True)
     authentication_token = models.CharField(max_length=255, unique=True)
-    token_last_refreshed = models.DateTimeField(auto_now_add=True)
+    token_last_refreshed = models.DateTimeField()
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     class Meta:
@@ -64,7 +64,7 @@ class Sensor(models.Model):
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField()
     value = models.FloatField()
 
     def __str__(self):

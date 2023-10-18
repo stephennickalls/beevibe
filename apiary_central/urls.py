@@ -11,5 +11,8 @@ apiaries_router.register('hives', views.HiveViewSet, basename='apiary-hives')
 
 router.register('sensors', views.SensorViewSet, basename='sensors')
 
+sensors_router = routers.NestedDefaultRouter(router, 'sensors', lookup='sensor')
+sensors_router.register('sensordata', views.SensorDataViewSet, basename='sensor-sensordata')
+
 # URLConf
-urlpatterns = router.urls  + apiaries_router.urls
+urlpatterns = router.urls  + apiaries_router.urls + sensors_router.urls
