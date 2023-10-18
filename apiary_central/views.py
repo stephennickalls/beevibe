@@ -8,8 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData
-from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, SensorDataUploadSerializer
-
+from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer
 class ApiaryViewSet(ModelViewSet):
     queryset = Apiary.objects.all()
     serializer_class = ApiarySerializer

@@ -1,3 +1,4 @@
+// trusense.io/reports/readapi.php?SN=M397916&TABLE=Real&CNT=24&HDR=1&FMT=json&FDATE=2023-01-07 20:00:30&TDATE=2099-10-06 00:00:00
 [{ "Datetime": "2023-10-18 09:45:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.5", "Rssi(avg)": "-78" }, 
 { "Datetime": "2023-10-18 09:30:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.5", "Rssi(avg)": "-75" }, 
 { "Datetime": "2023-10-18 09:15:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.4375", "Rssi(avg)": "-75" }, 
