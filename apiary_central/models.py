@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import uuid4
 from django.db import models
 from django.conf import settings
@@ -39,6 +40,32 @@ class Hive(models.Model):
 
     def __str__(self):
         return self.name
+    
+from django.db import models
+from django.conf import settings
+
+class ApiaryHub(models.Model):
+    # UUID or Serial Number
+    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=20)
+    end_date = models.DateField(default=date(2099, 12, 31))
+    STATUS_CHOICES = [
+        ('ONLINE', 'Online'),
+        ('OFFLINE', 'Offline'),
+        ('LOW_BATTERY', 'Low Battery'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OFFLINE')
+    last_connected_at = models.DateTimeField(null=True, blank=True)
+    battery_level = models.PositiveIntegerField(null=True, blank=True)  # Values between 0-100 representing percentage
+    software_version = models.CharField(max_length=50, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    apiary = models.ForeignKey('Apiary', on_delete=models.CASCADE, related_name='hubs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
+
+    def __str__(self):
+        return str(self.uuid)
+
 
 
 class Sensor(models.Model):
