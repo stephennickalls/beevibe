@@ -65,7 +65,16 @@ class ApiaryHub(models.Model):
 
     def __str__(self):
         return str(self.uuid)
-
+    
+class DataTransmission(models.Model):
+    transmission_uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    apiary_hub = models.ForeignKey(ApiaryHub, on_delete=models.CASCADE, related_name='transmissions')
+    tansmission_tries = models.IntegerField()
+    start_timestamp = models.DateTimeField()
+    end_timestamp = models.DateTimeField()
+    
+    def __str__(self):
+        return str(self.transmission_uuid)
 
 
 class Sensor(models.Model):
@@ -91,6 +100,7 @@ class Sensor(models.Model):
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')
+    transmission = models.ForeignKey(DataTransmission, null=True, blank=True, on_delete=models.SET_NULL, related_name='data') # Link to the transmission
     timestamp = models.DateTimeField()
     value = models.FloatField()
 
