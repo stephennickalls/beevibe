@@ -39,8 +39,7 @@ class HiveSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         component_types = validated_data.pop('component_types', [])
         apiary_id = self.context['apiary_id']
-        print(f'apiary id =  {apiary_id}')
-
+        # print(f'apiary id =  {apiary_id}')
         hive = Hive.objects.create(apiary_id=apiary_id, **validated_data)
         
         for component_type in component_types:
@@ -93,17 +92,11 @@ class SensorDataSerializer(serializers.ModelSerializer):
         model = SensorData
         fields = ['sensor', 'timestamp', 'value']
 
-## for bulk uploads from apiaries
-class SensorDataItemSerializer(serializers.Serializer):
-    value = serializers.FloatField()
-
-## for bulk uploads from apiaries
-class SensorDataUploadSerializer(serializers.Serializer):
-    hive_id = serializers.IntegerField()
-    timestamp = serializers.DateTimeField()
-    sensors = serializers.DictField(child=SensorDataItemSerializer())
-
-
+    def create(self, validated_data):
+        sensor_id = self.context['sensor_id']
+        print(f'sensor id =  {sensor_id}')
+        sensordata = SensorData.objects.create(sensor_id=sensor_id, **validated_data)
+        return sensordata
 
 
 

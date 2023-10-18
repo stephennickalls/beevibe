@@ -39,21 +39,30 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
 
 
 class SensorDataUploadViewSet(ModelViewSet):
-    serializer_class = SensorDataUploadSerializer
+    serializer_class = SensorDataSerializer
+    queryset = SensorData.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, many=True)
-        if serializer.is_valid():
-            self.save_data(serializer.validated_data)
-            return Response({"status": "success"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs): 
+        raw_data = request.data
+        transformed_data = self.transform_data(raw_data)
+
+        # serializer = self.get_serializer(data=request.data, many=True)
+        # if serializer.is_valid():
+        #     self.save_data(serializer.validated_data)
+        #     return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def transform_data(self, raw_data):
+        print(raw_data)
 
     def save_data(self, validated_data):
-        for hive_data in validated_data:
-            hive_id = hive_data['hive_id']
-            timestamp = hive_data['timestamp']
-            sensors = hive_data['sensors']
+        for sensor_data in validated_data:
+            hive_id = sensor_data['hive_id']
+            timestamp = sensor_data['timestamp']
+            print(f'hive id: {hive_id}, Timestamp: {timestamp}')
+            sensors = sensor_data['sensors']
             for sensor_type, sensor_data in sensors.items():
+                print(f'sensor type: {sensor_type}, sensor data: {sensor_data}')
                 # logic to save each sensor reading goes here.
                 # Find the hive using hive_id, find/create the sensor based on sensor_type,
                 # and then save the sensor_data['value'] along with timestamp.
