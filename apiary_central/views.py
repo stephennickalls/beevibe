@@ -49,10 +49,9 @@ class SensorDataUploadViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs): 
         # get transmision and apiary hub data
-        print(f'####################################### apiary ID = {request.data.get("apairy_id")}')
-        apiary_id = request.data.get("apairy_id")
-        apiary_hub_uuid = request.data.get('apiary_hub') # validated in model
-        transmission_uuid = request.data.get('transmission_uuid') # validated in model
+        apiary_id = request.data.get("apiary_id")
+        apiary_hub_uuid = request.data.get('apiary_hub').replace("-", "") # validated in model
+        transmission_uuid = request.data.get('transmission_uuid').replace("-", "") # validated in model
         transmission_tries = request.data.get('transmission_tries') # validated in model
         start_timestamp = request.data.get('start_timestamp') # validated in model
         end_timestamp = request.data.get('end_timestamp') # validated in model
@@ -64,30 +63,17 @@ class SensorDataUploadViewSet(ModelViewSet):
         # get hive and sensors data
         # data_entries = request.data.get('data', [])
 
-        # check for apiary hub and create one if not exist
+        # check apiary hub exists
         try: 
             # check record exists
+            
             apiary_hub = ApiaryHub.objects.get(uuid=apiary_hub_uuid)
         except ApiaryHub.DoesNotExist as e:
-            try:
-                # try to create new apiary hub with supplied data
-                apiary_hub = ApiaryHub(
-                    uuid=apiary_hub_uuid,
-                    type=type,
-                    hub_status=hub_status,
-                    battery_level=battery,
-                    software_version=software_version,
-                    apiary_id=apiary_id
-                )
-                apiary_hub.save()
-            except ValidationError as e:
-                return Response({"Apiary hub did not exsist and supplided data could not be used to create one": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-           
+            return Response({"Apiary Hub not registered. Please register your Apiary Hub": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        try:  
             # Create a DataTransmision instance and call save
             data_transmission = DataTransmission(
-                apiary_uuid=apiary_hub_uuid,
+                apiary_uuid=apiary_hub,
                 transmission_uuid=transmission_uuid,
                 transmission_tries=transmission_tries,
                 start_timestamp=start_timestamp,

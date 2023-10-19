@@ -1,6 +1,6 @@
 [
     {
-        "apiary_id": "1",
+        "apiary_id": 6,
         "apiary_hub": "9d9b75e5-90d6-4c8a-8a0d-01eb8156c0ec",
         "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa7e9",
         "transmission_tries": 0,
