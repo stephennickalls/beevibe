@@ -1,6 +1,7 @@
 from django.forms import ValidationError
 from django.shortcuts import render
 from django.db.models.aggregates import Count
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -47,6 +48,7 @@ class SensorDataUploadViewSet(ModelViewSet):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs): 
         # get transmision and apiary hub data
         apiary_id = request.data.get("apiary_id")
@@ -61,12 +63,11 @@ class SensorDataUploadViewSet(ModelViewSet):
         hub_status = request.data.get('hub_status') # validated in model
 
         # get hive and sensors data
-        # data_entries = request.data.get('data', [])
+        hive_data = request.data.get('data', [])
 
         # check apiary hub exists
         try: 
-            # check record exists
-            
+            # check record exists       
             apiary_hub = ApiaryHub.objects.get(uuid=apiary_hub_uuid)
         except ApiaryHub.DoesNotExist as e:
             return Response({"Apiary Hub not registered. Please register your Apiary Hub": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -80,30 +81,29 @@ class SensorDataUploadViewSet(ModelViewSet):
                 end_timestamp=end_timestamp,
             )
             data_transmission.save()
+
+            # save hive and sensor data
+            for data in hive_data:
+                data[0].get("hive_id")
+
+
         except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
+        
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
+        
+        
 
-        # serializer = self.get_serializer(data=request.data, many=True)
-        # if serializer.is_valid():
-        #     self.save_data(serializer.validated_data)
-        #     return Response({"status": "success"}, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_transmission_data(self, raw_data):
-        print(raw_data)
-
-    def save_data(self, validated_data):
-        for sensor_data in validated_data:
-            hive_id = sensor_data['hive_id']
-            timestamp = sensor_data['timestamp']
-            print(f'hive id: {hive_id}, Timestamp: {timestamp}')
-            sensors = sensor_data['sensors']
-            for sensor_type, sensor_data in sensors.items():
-                print(f'sensor type: {sensor_type}, sensor data: {sensor_data}')
-                # logic to save each sensor reading goes here.
-                # Find the hive using hive_id, find/create the sensor based on sensor_type,
-                # and then save the sensor_data['value'] along with timestamp.
+    # def save_hive_semsor_data(self, validated_data):
+    #     for sensor_data in validated_data:
+    #         hive_id = sensor_data['hive_id']
+    #         timestamp = sensor_data['timestamp']
+    #         print(f'hive id: {hive_id}, Timestamp: {timestamp}')
+    #         sensors = sensor_data['sensors']
+    #         for sensor_type, sensor_data in sensors.items():
+    #             print(f'sensor type: {sensor_type}, sensor data: {sensor_data}')
+    #             # logic to save each sensor reading goes here.
+    #             # Find the hive using hive_id, find/create the sensor based on sensor_type,
+    #             # and then save the sensor_data['value'] along with timestamp.
