@@ -1,5 +1,6 @@
 [
     {
+        "apiary_id": "1",
         "apiary_hub": "9d9b75e5-90d6-4c8a-8a0d-01eb8156c0ec",
         "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa7e9",
         "transmission_tries": 0,
@@ -7,6 +8,8 @@
         "end_timestamp": "2023-12-18T02:45:00Z", 
         "software_version": 1,
         "battery": 4.8,
+        "type": "esp32",
+        "hub_status": "Online",
         "data": [
             {
                 "hive_id": 101,
@@ -29,7 +32,7 @@
                     "e5e8d123-4a5d-4a56-b7f8-9d6a2b3c4d5e": {
                         "type": "AUDIO",
                         "timestamp": "2023-10-18T02:45:00Z",
-                        "value": 75 // just random has noting to do with the audio data I will store
+                        "value": 75 
                     }
                 }
             },
@@ -57,7 +60,7 @@
                         "value": 76
                     }
                 }
-            } // ....more hives from apiary
+            }
         ]
     }
 ]

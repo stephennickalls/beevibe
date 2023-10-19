@@ -2,6 +2,7 @@ from datetime import date
 from uuid import uuid4
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class HiveComponent(models.Model):
     COMPONENT_CHOICES = (
@@ -55,12 +56,16 @@ class ApiaryHub(models.Model):
         ('OFFLINE', 'Offline'),
         ('LOW_BATTERY', 'Low Battery'),
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OFFLINE')
+    hub_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OFFLINE')
     last_connected_at = models.DateTimeField(null=True, blank=True)
-    battery_level = models.PositiveIntegerField(null=True, blank=True)  # Values between 0-100 representing percentage
-    software_version = models.CharField(max_length=50, null=True, blank=True)
+    battery_level = models.DecimalField(max_digits=4, decimal_places=2, 
+                                        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], 
+                                        null=True, blank=True)  # Values between 0-100 representing percentage
+    software_version = models.DecimalField(max_digits=4, decimal_places=2, 
+                                        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
+                                        null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    apiary = models.ForeignKey('Apiary', on_delete=models.CASCADE, related_name='hubs')
+    apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
 
     def __str__(self):
@@ -68,8 +73,8 @@ class ApiaryHub(models.Model):
     
 class DataTransmission(models.Model):
     transmission_uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    apiary_hub = models.ForeignKey(ApiaryHub, on_delete=models.CASCADE, related_name='transmissions')
-    tansmission_tries = models.IntegerField()
+    apiary_uuid = models.ForeignKey(ApiaryHub, on_delete=models.CASCADE, related_name='transmissions')
+    transmission_tries = models.IntegerField(default=0, validators=[MinValueValidator(0.0), MaxValueValidator(1000.0)],)
     start_timestamp = models.DateTimeField()
     end_timestamp = models.DateTimeField()
     

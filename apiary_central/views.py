@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.shortcuts import render
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
@@ -7,8 +8,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework import serializers
-from .models import Apiary, Hive, Sensor, SensorData
+from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer
+
+
+
+
+
 class ApiaryViewSet(ModelViewSet):
     queryset = Apiary.objects.all()
     serializer_class = ApiarySerializer
@@ -42,8 +48,58 @@ class SensorDataUploadViewSet(ModelViewSet):
     queryset = SensorData.objects.all()
 
     def create(self, request, *args, **kwargs): 
-        raw_data = request.data
-        transformed_data = self.transform_data(raw_data)
+        # get transmision and apiary hub data
+        print(f'####################################### apiary ID = {request.data.get("apairy_id")}')
+        apiary_id = request.data.get("apairy_id")
+        apiary_hub_uuid = request.data.get('apiary_hub') # validated in model
+        transmission_uuid = request.data.get('transmission_uuid') # validated in model
+        transmission_tries = request.data.get('transmission_tries') # validated in model
+        start_timestamp = request.data.get('start_timestamp') # validated in model
+        end_timestamp = request.data.get('end_timestamp') # validated in model
+        software_version = request.data.get('softwear_version') # validated in model
+        battery = request.data.get('battery') # validated in model
+        type = request.data.get('type') # validated in model
+        hub_status = request.data.get('hub_status') # validated in model
+
+        # get hive and sensors data
+        # data_entries = request.data.get('data', [])
+
+        # check for apiary hub and create one if not exist
+        try: 
+            # check record exists
+            apiary_hub = ApiaryHub.objects.get(uuid=apiary_hub_uuid)
+        except ApiaryHub.DoesNotExist as e:
+            try:
+                # try to create new apiary hub with supplied data
+                apiary_hub = ApiaryHub(
+                    uuid=apiary_hub_uuid,
+                    type=type,
+                    hub_status=hub_status,
+                    battery_level=battery,
+                    software_version=software_version,
+                    apiary_id=apiary_id
+                )
+                apiary_hub.save()
+            except ValidationError as e:
+                return Response({"Apiary hub did not exsist and supplided data could not be used to create one": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+           
+            # Create a DataTransmision instance and call save
+            data_transmission = DataTransmission(
+                apiary_uuid=apiary_hub_uuid,
+                transmission_uuid=transmission_uuid,
+                transmission_tries=transmission_tries,
+                start_timestamp=start_timestamp,
+                end_timestamp=end_timestamp,
+            )
+            data_transmission.save()
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+
 
         # serializer = self.get_serializer(data=request.data, many=True)
         # if serializer.is_valid():
@@ -51,7 +107,7 @@ class SensorDataUploadViewSet(ModelViewSet):
         #     return Response({"status": "success"}, status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def transform_data(self, raw_data):
+    def get_transmission_data(self, raw_data):
         print(raw_data)
 
     def save_data(self, validated_data):
