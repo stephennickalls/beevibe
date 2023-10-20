@@ -1,7 +1,7 @@
 from django.forms import ValidationError
 from django.shortcuts import render
 from django.db.models.aggregates import Count
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,9 +11,6 @@ from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer
-
-
-
 
 
 class ApiaryViewSet(ModelViewSet):
@@ -47,63 +44,90 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
 class SensorDataUploadViewSet(ModelViewSet):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
+    
 
     @transaction.atomic
-    def create(self, request, *args, **kwargs): 
-        # get transmision and apiary hub data
-        apiary_id = request.data.get("apiary_id")
-        apiary_hub_uuid = request.data.get('apiary_hub').replace("-", "") # validated in model
-        transmission_uuid = request.data.get('transmission_uuid').replace("-", "") # validated in model
-        transmission_tries = request.data.get('transmission_tries') # validated in model
-        start_timestamp = request.data.get('start_timestamp') # validated in model
-        end_timestamp = request.data.get('end_timestamp') # validated in model
-        software_version = request.data.get('softwear_version') # validated in model
-        battery = request.data.get('battery') # validated in model
-        type = request.data.get('type') # validated in model
-        hub_status = request.data.get('hub_status') # validated in model
+    def create(self, request, *args, **kwargs):
+        response_data = {}
+        response_status = status.HTTP_201_CREATED
 
-        # get hive and sensors data
-        hive_data = request.data.get('data', [])
-
-        # check apiary hub exists
-        try: 
-            # check record exists       
+        try:
+  
+            
+            # get transmision and apiary hub data
+            apiary_hub_uuid = request.data.get('apiary_hub').replace("-", "") # validated in model
+            transmission_uuid = request.data.get('transmission_uuid').replace("-", "") # validated in model
+            transmission_tries = request.data.get('transmission_tries') # validated in model
+            start_timestamp = request.data.get('start_timestamp') # validated in model
+            end_timestamp = request.data.get('end_timestamp') # validated in model
+            # If apiary_hub does not exist
             apiary_hub = ApiaryHub.objects.get(uuid=apiary_hub_uuid)
-        except ApiaryHub.DoesNotExist as e:
-            return Response({"Apiary Hub not registered. Please register your Apiary Hub": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        try:  
-            # Create a DataTransmision instance and call save
-            data_transmission = DataTransmission(
-                apiary_uuid=apiary_hub,
-                transmission_uuid=transmission_uuid,
-                transmission_tries=transmission_tries,
-                start_timestamp=start_timestamp,
-                end_timestamp=end_timestamp,
-            )
-            data_transmission.save()
-
-            # save hive and sensor data
+            # get hive and sensors data
+            hive_data = request.data.get('data', [])
+            # if no error at this point we can go ahead and save the data transmission  
+            print("before data transmission")          
+            data_transmission_record = DataTransmission(
+                    apiary_uuid=apiary_hub,
+                    transmission_uuid=transmission_uuid,
+                    transmission_tries=transmission_tries,
+                    start_timestamp=start_timestamp,
+                    end_timestamp=end_timestamp,
+                )
+            data_transmission_record.save()
+            print("after data transmission")  
+            # save sensor data
             for data in hive_data:
-                data[0].get("hive_id")
+                print("in data loop")
+                sensors_data = data['sensors']
+                for sensor_uuid, sensor_reading in sensors_data.items():
+                    sensor_uuid = sensor_uuid.replace("-", "")
+                    print(f'Sensor id = {sensor_uuid}')
+                    sensor_id = Sensor.objects.get(uuid=sensor_uuid)
+                    timestamp = sensor_reading['timestamp']
+                    print("after Sensor")
+                    value = sensor_reading['value']
 
+                    transmission = DataTransmission.objects.get(transmission_uuid=transmission_uuid)
+                    print("###")
+                    print(f'Sensor id = {sensor_uuid}')
+                    print(f'transmission {transmission.replace("-", "")}')
+                    print(f'timestamp {timestamp}')
+                    print(f'value {value}')
+                    print("###")
+                    # data_reading = SensorData(
+                    #     sensor_id=sensor_id,
+                    #     transmission=transmission_uuid,
+                    #     timestamp=timestamp,
+                    #     value=value
+                    # )
 
+                    # print("after creating data_reading object")
+                    # data_reading.save() # save sensor data
+        except ApiaryHub.DoesNotExist:
+            response_data = {"Error": "Data transmission not found"}
+            response_status = status.HTTP_400_BAD_REQUEST
+        except DataTransmission.DoesNotExist:
+            response_data = {"Error": "Data transmission not found"}
+            response_status = status.HTTP_400_BAD_REQUEST
+        except Sensor.DoesNotExist:
+            response_data = {"Error": "Sensor not found"}
+            response_status = status.HTTP_400_BAD_REQUEST 
         except ValidationError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+            response_data = {"VError": str(e)}
+            response_status = status.HTTP_400_BAD_REQUEST
+        except IntegrityError as e:
+            response_data = {"IError": str(e)}
+            response_status = status.HTTP_400_BAD_REQUEST
+        except Exception as e:  # Catch all other exceptions
+            response_data = {"error": "An unexpected error occurred. Please try again."}
+            response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(response_data, status=response_status)
 
-        
-        
 
 
-    # def save_hive_semsor_data(self, validated_data):
-    #     for sensor_data in validated_data:
-    #         hive_id = sensor_data['hive_id']
-    #         timestamp = sensor_data['timestamp']
-    #         print(f'hive id: {hive_id}, Timestamp: {timestamp}')
-    #         sensors = sensor_data['sensors']
-    #         for sensor_type, sensor_data in sensors.items():
-    #             print(f'sensor type: {sensor_type}, sensor data: {sensor_data}')
-    #             # logic to save each sensor reading goes here.
-    #             # Find the hive using hive_id, find/create the sensor based on sensor_type,
-    #             # and then save the sensor_data['value'] along with timestamp.
+
+
+
+
+
+

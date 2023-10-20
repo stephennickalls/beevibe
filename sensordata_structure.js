@@ -2,7 +2,7 @@
     {
         "apiary_id": 6,
         "apiary_hub": "9d9b75e5-90d6-4c8a-8a0d-01eb8156c0ec",
-        "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa7e9",
+        "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa741",
         "transmission_tries": 0,
         "start_timestamp": "2023-10-18T02:45:00Z",
         "end_timestamp": "2023-12-18T02:45:00Z", 
@@ -24,7 +24,7 @@
                         "timestamp": "2023-10-18T02:45:00Z",
                         "value": 75.5
                     },
-                    "a2b12345-6d82-4b56-a8f6-5d6e8d7b8f9g": {
+                    "a2b12345-6d82-4b56-a8f6-5d6e8d7b8f97": {
                         "type": "HUMIDITY",
                         "timestamp": "2023-10-18T02:45:00Z",
                         "value": 65.3
@@ -44,17 +44,17 @@
                         "timestamp": "2023-10-19T03:45:00Z",
                         "value": 26.5
                     },
-                    "d1g7dd54-91ed-5g11-9b33-3f595g9g26c8": {
+                    "8c9876a4-59c7-4a6b-9d61-7499d7f5c3d9": {
                         "type": "WEIGHT",
                         "timestamp": "2023-10-19T03:45:00Z",
                         "value": 74.4
                     },
-                    "b3c23456-7e93-5h67-b9h9-6i7j9k1l2m3n": {
+                    "c5d8e2f9-2a4f-4f5a-b1f7-8b8b8a3c6a97": {
                         "type": "HUMIDITY",
                         "timestamp": "2023-10-19T03:45:00Z",
                         "value": 64.4
                     },
-                    "f6g9h234-5j6k-5l67-n8o9-0p1q2r3s4t5u": {
+                    "f3e6d4c2-7b8a-4e5b-9c0d-6a7b8c9d0e1f": {
                         "type": "AUDIO",
                         "timestamp": "2023-10-19T03:45:00Z",
                         "value": 76
