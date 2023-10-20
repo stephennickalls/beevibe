@@ -100,8 +100,8 @@ class Sensor(models.Model):
     class Meta:
         unique_together = ('hive', 'type')
 
-    def __str__(self):
-        return f"{self.type} for {self.hive.name}"
+    # def __str__(self):
+    #     return f"{self.type} for {self.hive.name}"
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')

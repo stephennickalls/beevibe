@@ -56,7 +56,7 @@ class SensorDataUploadViewSet(ModelViewSet):
             
             # get transmision and apiary hub data
             apiary_hub_uuid = request.data.get('apiary_hub').replace("-", "") # validated in model
-            transmission_uuid = request.data.get('transmission_uuid').replace("-", "") # validated in model
+            transmission_id = request.data.get('transmission_uuid').replace("-", "") # validated in model
             transmission_tries = request.data.get('transmission_tries') # validated in model
             start_timestamp = request.data.get('start_timestamp') # validated in model
             end_timestamp = request.data.get('end_timestamp') # validated in model
@@ -64,45 +64,34 @@ class SensorDataUploadViewSet(ModelViewSet):
             apiary_hub = ApiaryHub.objects.get(uuid=apiary_hub_uuid)
             # get hive and sensors data
             hive_data = request.data.get('data', [])
-            # if no error at this point we can go ahead and save the data transmission  
-            print("before data transmission")          
+            # if no error at this point we can go ahead and save the data transmission           
             data_transmission_record = DataTransmission(
                     apiary_uuid=apiary_hub,
-                    transmission_uuid=transmission_uuid,
+                    transmission_uuid=transmission_id,
                     transmission_tries=transmission_tries,
                     start_timestamp=start_timestamp,
                     end_timestamp=end_timestamp,
                 )
             data_transmission_record.save()
-            print("after data transmission")  
             # save sensor data
             for data in hive_data:
-                print("in data loop")
                 sensors_data = data['sensors']
                 for sensor_uuid, sensor_reading in sensors_data.items():
                     sensor_uuid = sensor_uuid.replace("-", "")
-                    print(f'Sensor id = {sensor_uuid}')
                     sensor_id = Sensor.objects.get(uuid=sensor_uuid)
                     timestamp = sensor_reading['timestamp']
-                    print("after Sensor")
                     value = sensor_reading['value']
 
-                    transmission = DataTransmission.objects.get(transmission_uuid=transmission_uuid)
-                    print("###")
-                    print(f'Sensor id = {sensor_uuid}')
-                    print(f'transmission {transmission.replace("-", "")}')
-                    print(f'timestamp {timestamp}')
-                    print(f'value {value}')
-                    print("###")
-                    # data_reading = SensorData(
-                    #     sensor_id=sensor_id,
-                    #     transmission=transmission_uuid,
-                    #     timestamp=timestamp,
-                    #     value=value
-                    # )
+                    transmission_instance = DataTransmission.objects.get(transmission_uuid=transmission_id)
 
-                    # print("after creating data_reading object")
-                    # data_reading.save() # save sensor data
+                    data_reading = SensorData(
+                        sensor_id=sensor_uuid,
+                        transmission=transmission_instance,
+                        timestamp=timestamp,
+                        value=value
+                    )
+                    data_reading.save() # save sensor data
+
         except ApiaryHub.DoesNotExist:
             response_data = {"Error": "Data transmission not found"}
             response_status = status.HTTP_400_BAD_REQUEST
@@ -119,7 +108,7 @@ class SensorDataUploadViewSet(ModelViewSet):
             response_data = {"IError": str(e)}
             response_status = status.HTTP_400_BAD_REQUEST
         except Exception as e:  # Catch all other exceptions
-            response_data = {"error": "An unexpected error occurred. Please try again."}
+            response_data = {"Unexpected error": str(e)}
             response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         return Response(response_data, status=response_status)
 
