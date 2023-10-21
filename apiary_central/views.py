@@ -52,8 +52,6 @@ class SensorDataUploadViewSet(ModelViewSet):
         response_status = status.HTTP_201_CREATED
 
         try:
-  
-            
             # get transmision and apiary hub data
             apiary_hub_uuid = request.data.get('apiary_hub').replace("-", "") # validated in model
             transmission_id = request.data.get('transmission_uuid').replace("-", "") # validated in model
@@ -78,7 +76,6 @@ class SensorDataUploadViewSet(ModelViewSet):
                 sensors_data = data['sensors']
                 for sensor_uuid, sensor_reading in sensors_data.items():
                     sensor_uuid = sensor_uuid.replace("-", "")
-                    sensor_id = Sensor.objects.get(uuid=sensor_uuid)
                     timestamp = sensor_reading['timestamp']
                     value = sensor_reading['value']
 
@@ -93,19 +90,19 @@ class SensorDataUploadViewSet(ModelViewSet):
                     data_reading.save() # save sensor data
 
         except ApiaryHub.DoesNotExist:
-            response_data = {"Error": "Data transmission not found"}
+            response_data = {"Error": "Apiary Hub not found. Have you registered your apiary hub?:" + str(e)}
             response_status = status.HTTP_400_BAD_REQUEST
         except DataTransmission.DoesNotExist:
-            response_data = {"Error": "Data transmission not found"}
+            response_data = {"Error": "Data transmission not found. Data transmision encountered an error and was not created:" + str(e)}
             response_status = status.HTTP_400_BAD_REQUEST
         except Sensor.DoesNotExist:
-            response_data = {"Error": "Sensor not found"}
+            response_data = {"Error": "Sensor not found. Have you registered your sensor?:" + str(e)}
             response_status = status.HTTP_400_BAD_REQUEST 
         except ValidationError as e:
             response_data = {"VError": str(e)}
             response_status = status.HTTP_400_BAD_REQUEST
         except IntegrityError as e:
-            response_data = {"IError": str(e)}
+            response_data = {"Integrity Error": str(e)}
             response_status = status.HTTP_400_BAD_REQUEST
         except Exception as e:  # Catch all other exceptions
             response_data = {"Unexpected error": str(e)}

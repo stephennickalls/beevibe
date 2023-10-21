@@ -18,3 +18,15 @@ router.register('sensordataupload', views.SensorDataUploadViewSet, basename='sen
 
 # URLConf
 urlpatterns = router.urls  + apiaries_router.urls + sensors_router.urls 
+
+
+# /api/apiaries/
+# /api/apiaries/6/
+# /api/apiaries/6/hives/
+# /api/apiaries/6/hives/11
+
+# /api/sensors/
+# /api/sensors/f3d4f904-2b32-4f62-b65f-9e2aa61aa7e4/
+# /api/sensors/f3d4f904-2b32-4f62-b65f-9e2aa61aa7e4/sensordata
+
+# /api/sensordataupload/ 
