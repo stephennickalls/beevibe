@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'debug_toolbar',
     'rest_framework',
+    'djoser',
     'beevibe',
     'apiary_central',
     'core',
