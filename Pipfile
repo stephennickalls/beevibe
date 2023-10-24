@@ -10,9 +10,9 @@ mysqlclient = "*"
 django-debug-toolbar = "*"
 django-filter = "*"
 drf-nested-routers = "*"
-djoser = "*"
 djangorestframework-simplejwt = "*"
 social-auth-app-django = "*"
+djoser = "*"
 
 [dev-packages]
 
