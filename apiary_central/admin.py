@@ -20,6 +20,13 @@ class ApiaryAdmin(admin.ModelAdmin):
     list_per_page = 10
     search_fields = ['name__istartswith']
 
+@admin.register(models.ApiaryHub)
+class ApiaryHubAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['apiary', 'user']
+    model = models.ApiaryHub
+    list_display = ['uuid', 'created_at', 'type', 'end_date', 'hub_status', 'last_connected_at', 'battery_level', 'software_version', 'description']
+    list_per_page = 10
+
 @admin.register(models.HiveComponentType)
 class HiveComponentTypeAdmin(admin.ModelAdmin):
     model = models.HiveComponentType
