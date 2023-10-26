@@ -13,8 +13,8 @@ class CustomUser(AbstractUser):
     active = models.BooleanField(default=True)
     created_at = models.DateField(auto_now_add=True)
     end_date = models.DateField(default=date(2099, 12, 31))
-    trial_end_date = models.DateField(null=True)
-    last_payment_date = models.DateField(null=True)
+    trial_end_date = models.DateField(null=True, blank=True)
+    last_payment_date = models.DateField(null=True, blank=True)
     subscription_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

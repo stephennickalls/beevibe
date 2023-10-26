@@ -8,7 +8,7 @@ from core.models import CustomUser
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'username', 'email', 'active', 'last_payment_date']
+    list_display = ['email', 'first_name', 'last_name', 'username', 'is_staff',  'active', 'last_payment_date']
     search_fields = ['username__istartswith']
     list_per_page = 10
     ordering = ['first_name', 'last_name']
