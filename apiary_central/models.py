@@ -4,23 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-class HiveComponent(models.Model):
-    COMPONENT_CHOICES = (
-        ('BROOD_BOX', 'Brood Box'),
-        ('HONEY_SUPER_3_4', 'Honey super 3/4'),
-        ('HONEY_SUPER_1_2', 'Honey super 1/2'),
-        ('QUEEN_EXCLUDER', 'Queen excluder'),
-        ('BASE', 'Base'),
-        ('HIVE_MAT', 'Hive Mat'),
-        ('LID', 'Lid'),
-        ('FEEDER', 'Feeder'),
-        ('OTHER', 'Other'),
-    )
-    type = models.CharField(max_length=16, choices=COMPONENT_CHOICES, unique=True)
-    description = models.TextField(null=True, blank=True)
 
-    def __str__(self):
-        return self.type
 
 class Apiary(models.Model):
     name = models.CharField(max_length=255)
@@ -32,15 +16,32 @@ class Apiary(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name = "Apiary"
+        verbose_name_plural = "Apiaries"
 
 class Hive(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hives')
-    components = models.ManyToManyField(HiveComponent, related_name='hives')
 
     def __str__(self):
         return self.name
+
+class HiveComponentType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class HiveComponent(models.Model):
+    hive = models.ForeignKey(Hive, on_delete=models.CASCADE, related_name="components")
+    type = models.ForeignKey(HiveComponentType, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.type)
     
 from django.db import models
 from django.conf import settings
