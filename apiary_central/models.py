@@ -16,6 +16,7 @@ class Apiary(models.Model):
 
     def __str__(self):
         return self.name
+    
     class Meta:
         verbose_name = "Apiary"
         verbose_name_plural = "Apiaries"
@@ -43,8 +44,6 @@ class HiveComponent(models.Model):
     def __str__(self):
         return str(self.type)
     
-from django.db import models
-from django.conf import settings
 
 class ApiaryHub(models.Model):
     # UUID or Serial Number
@@ -81,17 +80,18 @@ class DataTransmission(models.Model):
     
     def __str__(self):
         return str(self.transmission_uuid)
+    
+class SensorType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Sensor(models.Model):
-    SENSOR_TYPES = (
-        ('TEMP', 'Temperature'),
-        ('WEIGHT', 'Weight'),
-        ('HUMIDITY', 'Humidity'),
-        ('AUDIO', 'Audio') 
-    )
     uuid = models.UUIDField(primary_key=True, default=uuid4)
-    type = models.CharField(max_length=8, choices=SENSOR_TYPES)
+    sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     last_reading = models.FloatField(null=True, blank=True)
     authentication_token = models.CharField(max_length=255, unique=True)
@@ -99,10 +99,10 @@ class Sensor(models.Model):
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     class Meta:
-        unique_together = ('hive', 'type')
+        unique_together = ('hive', 'sensor_type')
 
-    # def __str__(self):
-    #     return f"{self.type} for {self.hive.name}"
+    def __str__(self):
+        return str(self.uuid)
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')
@@ -112,3 +112,7 @@ class SensorData(models.Model):
 
     def __str__(self):
         return f"{self.value} at {self.timestamp} for {self.sensor.type}"
+    
+    class Meta:
+        verbose_name = "Sensor data"
+        verbose_name_plural = "Sensor data"

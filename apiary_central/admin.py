@@ -47,5 +47,28 @@ class HiveComponentAdmin(admin.ModelAdmin):
     ordering = ['type']
     list_per_page = 10
 
+@admin.register(models.SensorType)
+class SensorTypeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description']
+    search_fields = ['name']
+    list_per_page = 10
+
+@admin.register(models.Sensor)
 class SensorAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+    autocomplete_fields = ['hive', 'sensor_type']
+    search_fields = ['uuid', 'sensor_type__name']
+    list_per_page = 10
+
+@admin.register(models.DataTransmission)
+class DataTransmissionAdmin(admin.ModelAdmin):
+    list_display = ['transmission_uuid', 'apiary_uuid', 'transmission_tries', 'start_timestamp', 'end_timestamp']
+    search_fields = ['transmission_uuid__istartswith']
+                    
+
+@admin.register(models.SensorData)
+class SensorDataAdmin(admin.ModelAdmin):
+    list_display = ['sensor', 'transmission', 'timestamp', 'value']
+    autocomplete_fields = ['sensor', 'transmission']
+    search_fields = ['sensor__uuid', 'transmission__uuid']
+    list_per_page = 10
