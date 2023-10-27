@@ -23,7 +23,7 @@ admin.site.site_header = 'BeeVibe Admin'
 admin.site.index_title = 'Admin'
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('beevibehq/', admin.site.urls),
     path('api/', include('apiary_central.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
