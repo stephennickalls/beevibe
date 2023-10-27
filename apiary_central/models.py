@@ -43,20 +43,18 @@ class HiveComponent(models.Model):
 
     def __str__(self):
         return str(self.type)
-    
+
+
+def generate_api_key():
+        return uuid4().hex   
 
 class ApiaryHub(models.Model):
     # UUID or Serial Number
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    api_key = models.CharField(max_length=255, unique=True, default=generate_api_key)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=20)
     end_date = models.DateField(default=date(2099, 12, 31))
-    STATUS_CHOICES = [
-        ('ONLINE', 'Online'),
-        ('OFFLINE', 'Offline'),
-        ('LOW_BATTERY', 'Low Battery'),
-    ]
-    hub_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OFFLINE')
     last_connected_at = models.DateTimeField(null=True, blank=True)
     battery_level = models.DecimalField(max_digits=4, decimal_places=2, 
                                         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], 
@@ -66,7 +64,8 @@ class ApiaryHub(models.Model):
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
+
 
     def __str__(self):
         return str(self.uuid)
@@ -94,8 +93,6 @@ class Sensor(models.Model):
     sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     last_reading = models.FloatField(null=True, blank=True)
-    authentication_token = models.CharField(max_length=255, unique=True)
-    token_last_refreshed = models.DateTimeField()
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     class Meta:
