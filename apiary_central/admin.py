@@ -24,7 +24,7 @@ class ApiaryAdmin(admin.ModelAdmin):
 class ApiaryHubAdmin(admin.ModelAdmin):
     autocomplete_fields = ['apiary']
     model = models.ApiaryHub
-    list_display = ['id', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description']
+    list_display = ['id', 'api_key', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description']
     list_per_page = 10
 
 @admin.register(models.HiveComponentType)

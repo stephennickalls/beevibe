@@ -66,7 +66,7 @@ class ApiaryHub(models.Model):
 
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.api_key)
     
 class DataTransmission(models.Model):
     transmission_uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
