@@ -97,6 +97,30 @@ class SensorDataSerializer(serializers.ModelSerializer):
         print(f'sensor id =  {sensor_id}')
         sensordata = SensorData.objects.create(sensor_id=sensor_id, **validated_data)
         return sensordata
+    
+class ReadingsSerializer(serializers.Serializer):
+    timestamp = serializers.DateTimeField()
+    value = serializers.DecimalField(max_digits=5,decimal_places=2, max_value=99.99, min_value=0.00)
+    
+class SensorDataTransmissionSerializer(serializers.Serializer):
+    sensor_id = serializers.UUIDField(format='hex_verbose')
+    type = serializers.CharField(max_length=100)
+    readings = ReadingsSerializer(many=True) 
+
+class HiveDataSerializer(serializers.Serializer):
+    hive_id = serializers.IntegerField()
+    sensors = SensorDataTransmissionSerializer(many=True)
+
+class DataTransmissionSerializer(serializers.Serializer):
+    api_key = serializers.UUIDField(format='hex_verbose')
+    transmission_uuid = serializers.UUIDField(format='hex_verbose')
+    transmission_tries = serializers.IntegerField(min_value=0, max_value=1000)
+    start_timestamp = serializers.DateTimeField()
+    end_timestamp = serializers.DateTimeField()
+    software_version = serializers.DecimalField(max_digits=5,decimal_places=2, max_value=99.99, min_value=0.00)
+    battery = serializers.DecimalField(max_digits=5, decimal_places=2, max_value=99.99, min_value=0.00)
+    type = serializers.CharField(max_length=50)
+    data = HiveDataSerializer(many=True)
 
 
 

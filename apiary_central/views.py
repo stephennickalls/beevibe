@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
-from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer
+from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer
 
 
 class ApiaryViewSet(ModelViewSet):
@@ -48,66 +48,50 @@ class SensorDataUploadViewSet(ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        response_data = {}
-        response_status = status.HTTP_201_CREATED
+        serializer = DataTransmissionSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                # check hub is in the database using the api_key
+                apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
+                data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
+                self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
+                return Response({"success": "Data created successfully"}, status=status.HTTP_201_CREATED)
+            except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError) as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"unexpected_error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            # get transmision and apiary hub data
-            api_key = request.data.get('api_key').replace("-", "") # validated in model
-            transmission_id = request.data.get('transmission_uuid').replace("-", "") # validated in model
-            transmission_tries = request.data.get('transmission_tries') # validated in model
-            start_timestamp = request.data.get('start_timestamp') # validated in model
-            end_timestamp = request.data.get('end_timestamp') # validated in model
-            # If apiary_hub does not exist
-            apiary_hub = ApiaryHub.objects.get(api_key=api_key)
-            # get hive and sensors data
-            hive_data = request.data.get('data', [])
-            # if no error at this point we can go ahead and save the data transmission           
-            data_transmission_record = DataTransmission(
-                    api_key=api_key,
-                    transmission_uuid=transmission_id,
-                    transmission_tries=transmission_tries,
-                    start_timestamp=start_timestamp,
-                    end_timestamp=end_timestamp,
+    def get_apiary_hub(self, api_key):
+        return ApiaryHub.objects.get(api_key=api_key)
+
+    def create_data_transmission_record(self, validated_data, apiary_hub):
+        data_transmission_record = DataTransmission(
+                    transmission_uuid = validated_data['transmission_uuid'],
+                    apiary=apiary_hub,
+                    transmission_tries = validated_data['transmission_tries'],
+                    start_timestamp = validated_data['start_timestamp'],
+                    end_timestamp = validated_data['end_timestamp']
                 )
-            data_transmission_record.save()
-            # save sensor data
-            # for data in hive_data:
-            #     sensors_data = data['sensors']
-            #     for sensor_uuid, sensor_reading in sensors_data.items():
-            #         sensor_uuid = sensor_uuid.replace("-", "")
-            #         timestamp = sensor_reading['timestamp']
-            #         value = sensor_reading['value']
+        return data_transmission_record.save()
 
-            #         transmission_instance = DataTransmission.objects.get(transmission_uuid=transmission_id)
+    def create_sensor_data(self, sensor_data, data_transmission_record):
+        for hive_data in sensor_data:
+            hive_id = hive_data['hive_id']
+            for sensor_data in hive_data['sensors']:
+                sensor = Sensor.objects.get(uuid=sensor_data['sensor_id']),
+                for readings in sensor_data['readings']:
+                    sensor_data_record = SensorData(
+                        sensor = sensor[0],
+                        transmission = data_transmission_record,
+                        timestamp = readings['timestamp'],
+                        value = readings['value']
+                    )
 
-            #         data_reading = SensorData(
-            #             sensor_id=sensor_uuid,
-            #             transmission=transmission_instance,
-            #             timestamp=timestamp,
-            #             value=value
-            #         )
-            #         data_reading.save() # save sensor data
+                    sensor_data_record.save()
 
-        except ApiaryHub.DoesNotExist as e:
-            response_data = {"Error": "Apiary Hub not found. Have you registered your apiary hub?:" + str(e)}
-            response_status = status.HTTP_400_BAD_REQUEST
-        except DataTransmission.DoesNotExist as e:
-            response_data = {"Error": "Data transmission not found. Data transmision encountered an error and was not created:" + str(e)}
-            response_status = status.HTTP_400_BAD_REQUEST
-        except Sensor.DoesNotExist as e:
-            response_data = {"Error": "Sensor not found. Have you registered your sensor?:" + str(e)}
-            response_status = status.HTTP_400_BAD_REQUEST 
-        except ValidationError as e:
-            response_data = {"VError": str(e)}
-            response_status = status.HTTP_400_BAD_REQUEST
-        except IntegrityError as e:
-            response_data = {"Integrity Error": str(e)}
-            response_status = status.HTTP_400_BAD_REQUEST
-        except Exception as e:  # Catch all other exceptions
-            response_data = {"Unexpected error": str(e)}
-            response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return Response(response_data, status=response_status)
+
 
 
 

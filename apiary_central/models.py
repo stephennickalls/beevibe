@@ -46,10 +46,10 @@ class HiveComponent(models.Model):
 
 
 def generate_api_key():
-        return uuid4().hex   
+        return uuid4().hex 
 
 class ApiaryHub(models.Model):
-    api_key = models.CharField(max_length=255, unique=True, default=generate_api_key)
+    api_key = models.UUIDField(unique=True, default=generate_api_key)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=20)
     end_date = models.DateField(default=date(2099, 12, 31))
@@ -63,6 +63,7 @@ class ApiaryHub(models.Model):
     description = models.TextField(null=True, blank=True)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
     # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
+    
 
 
     def __str__(self):
