@@ -24,7 +24,7 @@ class ApiaryAdmin(admin.ModelAdmin):
 class ApiaryHubAdmin(admin.ModelAdmin):
     autocomplete_fields = ['apiary']
     model = models.ApiaryHub
-    list_display = ['uuid', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description']
+    list_display = ['id', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description']
     list_per_page = 10
 
 @admin.register(models.HiveComponentType)
@@ -69,7 +69,7 @@ class SensorAdmin(admin.ModelAdmin):
 
 @admin.register(models.DataTransmission)
 class DataTransmissionAdmin(admin.ModelAdmin):
-    list_display = ['transmission_uuid', 'apiary_uuid', 'transmission_tries', 'start_timestamp', 'end_timestamp']
+    list_display = ['transmission_uuid', 'apiary', 'transmission_tries', 'start_timestamp', 'end_timestamp']
     search_fields = ['transmission_uuid__istartswith']
                     
 
