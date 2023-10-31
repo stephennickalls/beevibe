@@ -1,8 +1,8 @@
 
 [
     {
-    "api_key": "2ef12f06f58c4921bbab776f51cb4bb4",
-    "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa741",
+    "api_key": "6e9f81b5-ddf0-4321-a01a-8736774b487a",
+    "transmission_uuid": "b1f675e5-90d6-4c8a-8a0d-9e2aa61aa749",
     "transmission_tries": 0,
     "start_timestamp": "2023-10-18T02:45:00Z",
     "end_timestamp": "2023-10-18T04:45:00Z",
@@ -11,10 +11,10 @@
     "type": "esp32",
     "data": [
         {
-            "hive_id": 101,
+            "hive_id": 1,
             "sensors": [
                 {
-                    "sensor_id": "temp_sensor_1",
+                    "sensor_id": "746a3e28-328d-46f5-8405-252b35d203ab",
                     "type": "TEMP",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 25.2},
@@ -28,7 +28,7 @@
                     ]
                 },
                 {
-                    "sensor_id": "weight_sensor_1",
+                    "sensor_id": "2ab4d926-d9ab-43f5-8334-7c1dd6976427",
                     "type": "WEIGHT",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 75.5},
@@ -44,10 +44,10 @@
             ]
         },
         {
-            "hive_id": 102,
+            "hive_id": 2,
             "sensors": [
                 {
-                    "sensor_id": "temp_sensor_2",
+                    "sensor_id": "9b00bfd5-83b8-4ec4-9bed-0674092b7bfd",
                     "type": "TEMP",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 26.5},
@@ -61,7 +61,7 @@
                     ]
                 },
                 {
-                    "sensor_id": "weight_sensor_2",
+                    "sensor_id": "f0f73103-1a2a-4025-9843-02a59d1edeb6",
                     "type": "WEIGHT",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 74.4},
