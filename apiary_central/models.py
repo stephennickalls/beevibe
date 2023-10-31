@@ -27,7 +27,7 @@ class Hive(models.Model):
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hives')
 
     def __str__(self):
-        return self.name
+        return str(self.id)
 
 class HiveComponentType(models.Model):
     name = models.CharField(max_length=50, unique=True)
