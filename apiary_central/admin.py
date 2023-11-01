@@ -1,17 +1,43 @@
 from django.contrib import admin, messages
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
+from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
 from . import models
 from core.models import CustomUser
 
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ('email',)
+
 @admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ['email', 'first_name', 'last_name', 'username', 'is_staff',  'active', 'last_payment_date']
+class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = CustomUser
+    list_display = ['email', 'first_name', 'last_name', 'username', 'is_staff', 'active', 'last_payment_date']
     search_fields = ['username__istartswith']
     list_per_page = 10
     ordering = ['first_name', 'last_name']
+    fieldsets = UserAdmin.fieldsets + (
+            (None, {'fields': ('user_type', 'receive_notifications', 'active', 'end_date', 'trial_end_date', 'last_payment_date', 'subscription_id')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'user_type', 'receive_notifications', 'active', 'end_date', 'trial_end_date', 'last_payment_date', 'subscription_id'),
+        }),
+    )
 
 @admin.register(models.Apiary)
 class ApiaryAdmin(admin.ModelAdmin):
