@@ -8,8 +8,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Apiary(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.FloatField()  # Accepts values from -90 to 90
-    longitude = models.FloatField()  # Accepts values from -180 to 180
+    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])  # Accepts values from -90 to 90
+    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])  # Accepts values from -180 to 180
     description = models.TextField(null=True, blank=True)
     registration_number = models.CharField(max_length=255, unique=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='apiaries')

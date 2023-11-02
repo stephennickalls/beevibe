@@ -8,9 +8,8 @@ from rest_framework import serializers
 class ApiarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Apiary
-        fields = ['id', 'name', 'latitude', 'longitude', 'description', 'owner']
+        fields = ['id', 'name', 'latitude', 'longitude', 'description', 'registration_number', 'owner']
 
-    # products_count = serializers.IntegerField(read_only=True)
 
 class HiveComponentSerializer(serializers.ModelSerializer):
     class Meta:

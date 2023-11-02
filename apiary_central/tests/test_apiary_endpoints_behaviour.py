@@ -7,47 +7,13 @@ from apiary_central.models import Apiary
 User = get_user_model()
 
 @pytest.fixture
-def user(db):
-    return User.objects.create_user(username='user', password='test')
-
-@pytest.fixture
 def api_client(user):
     client = APIClient()
     client.force_authenticate(user=user)
     return client
 
 @pytest.mark.django_db
-class TestCreateApiary:
-
-    def test_if_user_is_authenticated_returns_201(self, api_client, user):
-        data = {
-            'name': 'Test Apiary',
-            'latitude': -38.80895,
-            'longitude': 118.35449,
-            'description': 'Test Description',
-            'registration_number': 'kb99887',
-            'owner': user.id
-        }
-        response = api_client.post('/api/apiaries/', data)
-        assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['name'] == 'Test Apiary'
-        assert response.data['owner'] == user.id  # Make sure the owner is set correctly
-
-
-    def test_if_user_is_anonymous_returns_401(self):
-        api_client = APIClient() # NOT authenticated
-        data = {
-            'name': 'Test Apiary',
-            'latitude': -38.80895,
-            'longitude': 118.35449,
-            'description': 'Test Description',
-            'registration_number': 'kb99887',
-        }
-        response = api_client.post('/api/apiaries/', data)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-@pytest.mark.django_db
-class ApiaryPermissionTests(APITestCase):
+class TestApiaryBehaviour(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(username='user1', email='user1@email.com', password="test")
@@ -67,6 +33,35 @@ class ApiaryPermissionTests(APITestCase):
                 registration_number='kb9981',
                 owner=self.user2
         )
+
+    def test_if_user_is_authenticated_returns_201(self):
+        self.client.force_authenticate(user=self.user1)
+        valid_data = {
+            'name': 'Test Apiary',
+            'latitude': -38.80895,
+            'longitude': 118.35449,
+            'description': 'Test Description',
+            'registration_number': 'kb99887',
+            'owner': self.user1.id
+        }
+        response = self.client.post('/api/apiaries/', valid_data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['name'] == 'Test Apiary'
+        assert response.data['owner'] == self.user1.id  # Make sure the owner is set correctly
+
+
+    def test_if_user_is_anonymous_returns_401(self):
+        api_client = APIClient() # NOT authenticated
+        data = {
+            'name': 'Test Apiary',
+            'latitude': -38.80895,
+            'longitude': 118.35449,
+            'description': 'Test Description',
+            'registration_number': 'kb99887',
+        }
+        response = api_client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
 
     def test_user_can_access_own_apiaries(self):
         self.client.force_authenticate(user=self.user1)

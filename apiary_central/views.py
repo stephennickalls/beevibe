@@ -21,6 +21,12 @@ class ApiaryViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Apiary.objects.filter(owner=user)
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            return super(ApiaryViewSet, self).create(request, *args, **kwargs)
+        except IntegrityError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class HiveViewSet(ModelViewSet):
