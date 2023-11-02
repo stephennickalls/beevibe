@@ -46,6 +46,7 @@ class TestCreateApiary:
         response = api_client.post('/api/apiaries/', data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+@pytest.mark.django_db
 class ApiaryPermissionTests(APITestCase):
 
     def setUp(self):
@@ -72,3 +73,20 @@ class ApiaryPermissionTests(APITestCase):
         response = self.client.get(f'/api/apiaries/{self.apiary1.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.apiary1.name)
+
+    def test_user_cannot_access_other_users_apiary(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(f'/api/apiaries/{self.apiary2.id}/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_cannot_delete_other_users_apiary(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.delete(f'/api/apiraries/{self.apiary2.id}')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_can_only_see_own_apiaries_in_list(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get('/api/apiaries/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assuming the response data is a list of apiaries
+        self.assertTrue(all(apiary['owner'] == self.user1.id for apiary in response.data))
