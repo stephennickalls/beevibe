@@ -68,16 +68,23 @@ class ApiaryPermissionTests(APITestCase):
                 owner=self.user2
         )
 
-    def test_user_can_access_own_apiary(self):
+    def test_user_can_access_own_apiaries(self):
         self.client.force_authenticate(user=self.user1)
         response = self.client.get(f'/api/apiaries/{self.apiary1.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.apiary1.name)
 
-    def test_user_cannot_access_other_users_apiary(self):
+    def test_user_cannot_access_other_users_apiaries(self):
         self.client.force_authenticate(user=self.user1)
         response = self.client.get(f'/api/apiaries/{self.apiary2.id}/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_can_delete_own_apiary(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.delete(f'/api/apiaries/{self.apiary1.id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # Check if the apiary has been deleted
+        self.assertFalse(Apiary.objects.filter(id=self.apiary1.id).exists())
 
     def test_user_cannot_delete_other_users_apiary(self):
         self.client.force_authenticate(user=self.user1)
@@ -90,3 +97,21 @@ class ApiaryPermissionTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Assuming the response data is a list of apiaries
         self.assertTrue(all(apiary['owner'] == self.user1.id for apiary in response.data))
+
+    def test_user_can_update_own_apiary(self):
+        self.client.force_authenticate(user=self.user1)
+        update_data = {
+            'name': "Updated Apiary",
+            'description': 'Updated Description'
+        }
+        response = self.client.patch(f'/api/apiaries/{self.apiary1.id}/', update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.apiary1.refresh_from_db()
+        self.assertEqual(self.apiary1.name, 'Updated Apiary')
+
+    def test_user_cannot_update_other_users_apiary(self):
+        self.client.force_authenticate(user=self.user1)
+        update_data = {'name': 'Should Not Update'}
+        response = self.client.patch(f'/api/apiaries/{self.apiary2.id}/', update_data)
+        self.assertIn(response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND])
+
