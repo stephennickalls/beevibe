@@ -13,7 +13,7 @@ def api_client(user):
     return client
 
 @pytest.mark.django_db
-class TestApiaryBehaviour(APITestCase):
+class TestApiaryPermissions(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(username='user1', email='user1@email.com', password="test")
@@ -27,14 +27,14 @@ class TestApiaryBehaviour(APITestCase):
                 owner=self.user1
         )
         self.apiary2 = Apiary.objects.create(
-                name='Apiary1',
+                name='Apiary2',
                 latitude=39.0,
                 longitude=119.0,
                 registration_number='kb9981',
                 owner=self.user2
         )
 
-    def test_if_user_is_authenticated_returns_201(self):
+    def test_if_user_is_authenticated_creating_apiary_returns_201(self):
         self.client.force_authenticate(user=self.user1)
         valid_data = {
             'name': 'Test Apiary',
@@ -50,7 +50,7 @@ class TestApiaryBehaviour(APITestCase):
         assert response.data['owner'] == self.user1.id  # Make sure the owner is set correctly
 
 
-    def test_if_user_is_anonymous_returns_401(self):
+    def test_if_user_is_anonymous_creating_apiary_returns_401(self):
         api_client = APIClient() # NOT authenticated
         data = {
             'name': 'Test Apiary',

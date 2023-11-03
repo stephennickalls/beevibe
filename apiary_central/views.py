@@ -31,9 +31,14 @@ class ApiaryViewSet(ModelViewSet):
 
 class HiveViewSet(ModelViewSet):
     serializer_class = HiveSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Hive.objects.filter(apiary_id=self.kwargs['apiary_pk'])
+        # Get the apiary based on the URL parameter and ensure it belongs to the current user
+        user = self.request.user
+        apiary = get_object_or_404(Apiary, id=self.kwargs['apiary_pk'], owner=user)
+        # Return hives that belong to the retrieved apiary
+        return Hive.objects.filter(apiary=apiary)
 
     def get_serializer_context(self):
         return {'apiary_id': self.kwargs['apiary_pk']}

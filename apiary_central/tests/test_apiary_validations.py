@@ -6,12 +6,6 @@ from rest_framework.test import APIClient, APITestCase
 
 User = get_user_model()
 
-@pytest.fixture
-def api_client(user):
-    client = APIClient()
-    client.force_authenticate(user=user)
-    return client
-
 @pytest.mark.django_db
 class TestAliaryValidations(APITestCase):
 
