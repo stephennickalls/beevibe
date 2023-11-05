@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType
 from rest_framework import serializers
 
 
@@ -28,7 +28,7 @@ class HiveSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Hive
-        fields = ['id', 'name', 'description', 'components', 'component_types']
+        fields = ['id', 'name', 'description', 'components', 'component_types', 'apiary']
 
     #### REMEMBER!!! when sending an object to the server you must use "component_types"!!!!!
     
@@ -50,29 +50,26 @@ class HiveSerializer(serializers.ModelSerializer):
                     
         return hive
 
-    def update(self, instance, validated_data):
-    # Pop the components list from validated_data
-        component_types = validated_data.pop('component_types', [])
+def update(self, instance, validated_data):
+    component_types = validated_data.pop('component_types', [])
 
-        print(component_types)
+    # Update other fields
+    for attr, value in validated_data.items():
+        setattr(instance, attr, value)
+    instance.save()
 
-        # Update other fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+    # Delete the existing components for the hive
+    HiveComponent.objects.filter(hive=instance).delete()
 
-        # Clear the existing components for the hive
-        instance.components.clear()
+    # Add the new components based on their textual representation
+    for component_type in component_types:
+        try:
+            component_type_instance = HiveComponentType.objects.get(name=component_type)
+            HiveComponent.objects.create(hive=instance, type=component_type_instance)
+        except HiveComponentType.DoesNotExist:
+            raise serializers.ValidationError(f"Invalid component type: {component_type}")
 
-        # Add the new components based on their textual representation
-        for component_type in component_types:
-            try:
-                component = HiveComponent.objects.get(type=component_type)
-                instance.components.add(component)
-            except HiveComponent.DoesNotExist:
-                raise serializers.ValidationError(f"Invalid component type: {component_type}")
-  
-        return instance
+    return instance
 
 
 

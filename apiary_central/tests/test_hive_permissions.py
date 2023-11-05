@@ -99,3 +99,14 @@ class TestHivePermissions(APITestCase):
             # Fetch the apiary for each hive to check its owner
             apiary = Apiary.objects.get(id=hive['apiary'])
             assert apiary.owner.id == self.user1.id
+
+    def test_user_can_update_own_hive(self):
+        self.client.force_authenticate(user=self.user1)
+        updated_data = {
+            'name': "Updated Hive",
+            'description': 'Updated Hive Description'
+        }
+        response = self.client.patch(f'/api/apiaries/{self.apiary1.id}/hives/{self.hive1.id}/', updated_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.hive1.refresh_from_db()
+        assert self.hive1.name == 'Updated Hive'
