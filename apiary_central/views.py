@@ -4,6 +4,7 @@ from django.db.models.aggregates import Count
 from django.db import transaction, IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
+from .permissions import BaseOwnerPermission
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer
 
 
@@ -31,7 +33,7 @@ class ApiaryViewSet(ModelViewSet):
 
 class HiveViewSet(ModelViewSet):
     serializer_class = HiveSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, BaseOwnerPermission]
 
     def get_queryset(self):
         # Get the apiary based on the URL parameter and ensure it belongs to the current user
@@ -42,6 +44,16 @@ class HiveViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'apiary_id': self.kwargs['apiary_pk']}
+    
+    def create(self, request, *args, **kwargs):
+        modified_data = request.data.copy()
+        modified_data.setdefault('apiary', self.kwargs['apiary_pk'])
+        serializer = self.get_serializer(data=modified_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')
