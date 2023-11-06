@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub
 from rest_framework import serializers
 
 
@@ -71,7 +71,12 @@ def update(self, instance, validated_data):
 
     return instance
 
-
+class ApiaryHubSerializer(serializers.ModelSerializer):
+    api_key = serializers.UUIDField(read_only=True)
+    apiary = serializers.PrimaryKeyRelatedField(queryset=Apiary.objects.all(), required=False, allow_null=True)
+    class Meta:
+        model = ApiaryHub
+        fields = ['api_key', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description', 'apiary']
 
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
@@ -79,7 +84,7 @@ class SensorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sensor
-        fields = ['uuid', 'type', 'created_at', 'token_last_refreshed', 'hive']
+        fields = ['uuid', 'sensor_type', 'created_at', 'hive']
 
 
 class SensorDataSerializer(serializers.ModelSerializer):

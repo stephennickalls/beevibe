@@ -8,12 +8,12 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
 from .permissions import BaseOwnerPermission
-from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer
+from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
 
 
 class ApiaryViewSet(ModelViewSet):
@@ -53,7 +53,25 @@ class HiveViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+class DataCollectionViewSet(ViewSet):
+    """
+    A ViewSet that represents the 'datacollection' endpoint.
+    """
 
+    def list(self, request):
+        return Response({
+            "message": "This is the Data Collection endpoint.",
+            "endpoints": {
+                "apiayhubdataupload": "/datacollection/apiaryhubs/apiayhubdataupload/",
+                "apiaryhubs": "/datacollection/apiaryhubs/",
+                "sensors": "/datacollection/sensors/"
+            }
+        })
+
+class ApiaryHubViewSet(ModelViewSet):
+    queryset = ApiaryHub.objects.all()
+    serializer_class = ApiaryHubSerializer
     
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')
@@ -69,7 +87,7 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
         return {'sensor_id': self.kwargs['sensor_pk']}
 
 
-class SensorDataUploadViewSet(ModelViewSet):
+class ApiaryHubDataUploadViewSet(ModelViewSet):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
     
