@@ -30,27 +30,27 @@ class TestHiveValidations(APITestCase):
         valid_data = {
             'name': 'test name',
             'description': "a great hive description",
-            'apiary': self.apiary1.id
         }
         response = self.client.post(f'/api/apiaries/{self.apiary1.id}/hives/', valid_data)
         assert response.status_code == status.HTTP_201_CREATED
-    
-    def test_hive_creation_without_required_apiary(self):
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'name': 'test name',
-            'description': "a great description",
-        }
-        response = self.client.post(f'/api/apiaries/{self.apiary1.id}/hives/', data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-    def test_hive_creation_with_int_in_name_text_field(self):
+    def test_hive_creation_with_invalid_data_type_in_name_field_is_cast_to_string(self):
         self.client.force_authenticate(user=self.user1)
         valid_data = {
-            'name': 1,
+            'name': True,
             'description': "a great hive description",
-            'apiary': self.apiary1.id
         }
         response = self.client.post(f'/api/apiaries/{self.apiary1.id}/hives/', valid_data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['name'] == 'True'
+
+    def test_hive_creation_with_invalid_data_type_in_description_field_is_cast_to_string(self):
+        self.client.force_authenticate(user=self.user1)
+        valid_data = {
+            'name': 'Great name',
+            'description': 100,
+        }
+        response = self.client.post(f'/api/apiaries/{self.apiary1.id}/hives/', valid_data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['description'] == '100'

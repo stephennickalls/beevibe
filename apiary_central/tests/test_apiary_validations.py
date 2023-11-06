@@ -128,3 +128,94 @@ class TestAliaryValidations(APITestCase):
         }
         response = self.client.post('/api/apiaries/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_apiary_creation_with_invalid_data_type_in_description_field_is_cast_to_string(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'test name', 
+            'latitude': 90.0,
+            'longitude': 100.0,
+            'description': True,
+            'registration_number': 'sd3356',
+            'owner': self.user1.id
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['description'] == 'True'
+
+    def test_apiary_creation_with_invalid_data_type_in_name_field_is_cast_to_string(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 100, 
+            'latitude': 90.0,
+            'longitude': 100.0,
+            'description': 'A description',
+            'registration_number': 'sd3356',
+            'owner': self.user1.id
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['name'] == '100'
+
+    
+    def test_apiary_creation_with_invalid_data_type_in_latitude_field_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'Best name ever', 
+            'latitude': 'Test',
+            'longitude': 100.0,
+            'description': 'A description',
+            'registration_number': 'sd3356',
+            'owner': self.user1.id
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_apiary_creation_with_invalid_data_type_in_longitude_field_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'Best name ever', 
+            'latitude': 80.00,
+            'longitude': True,
+            'description': 'A description',
+            'registration_number': 'sd3356',
+            'owner': self.user1.id
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_apiary_creation_with_invalid_data_type_in_registration_field_is_cast_to_string(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'Best name ever', 
+            'latitude': 80.00,
+            'longitude': 50.00,
+            'description': 'A description',
+            'registration_number': False,
+            'owner': self.user1.id
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['registration_number'] == 'False'
+
+
+    def test_apiary_creation_with_invalid_data_type_in_owner_field_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'name': 'Best name ever', 
+            'latitude': 80.00,
+            'longitude': 50.00,
+            'description': 'A description',
+            'registration_number': False,
+            'owner': True
+            
+        }
+        response = self.client.post('/api/apiaries/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
