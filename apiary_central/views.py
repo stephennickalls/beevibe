@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
-from .permissions import BaseOwnerPermission
+from .permissions import IsHiveOwner, IsApiaryOwner
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
 
 
@@ -33,7 +33,7 @@ class ApiaryViewSet(ModelViewSet):
 
 class HiveViewSet(ModelViewSet):
     serializer_class = HiveSerializer
-    permission_classes = [IsAuthenticated, BaseOwnerPermission]
+    permission_classes = [IsAuthenticated, IsHiveOwner]
 
     def get_queryset(self):
         # Get the apiary based on the URL parameter and ensure it belongs to the current user
@@ -72,6 +72,7 @@ class DataCollectionViewSet(ViewSet):
 class ApiaryHubViewSet(ModelViewSet):
     queryset = ApiaryHub.objects.all()
     serializer_class = ApiaryHubSerializer
+    permission_classes = [IsAuthenticated, IsApiaryOwner]
     
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')
