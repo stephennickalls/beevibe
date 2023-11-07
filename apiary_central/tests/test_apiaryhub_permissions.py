@@ -150,32 +150,39 @@ class TestApiaryHubPermissions(APITestCase):
         # Check if the hive has been deleted
         self.assertFalse(ApiaryHub.objects.filter(api_key=api_key).exists())
     
-    # def test_user_cannot_delete_other_users_hive_returns_403(self):
-    #     self.client.force_authenticate(user=self.user2)
-    #     response = self.client.delete(f'/api/apiaries/{self.apiary1.id}/hives/{self.hive1.id}/')
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_user_cannot_delete_other_users_apiaryhub_returns_403(self):
+        self.client.force_authenticate(user=self.user1)
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    # def test_user_can_only_see_own_hives_in_list_returns_200(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     response = self.client.get(f'/api/apiaries/{self.apiary1.id}/hives/')
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     # Assuming the response.data is a list of hives
-    #     # Check that each hive belongs to an apiary owned by user1
-    #     for hive in response.data:
-    #         # Fetch the apiary for each hive to check its owner
-    #         apiary = Apiary.objects.get(id=hive['apiary'])
-    #         assert apiary.owner.id == self.user1.id
+    def test_user_can_only_see_own_apiaryhubs_in_list_returns_200(self):
+        self.client.force_authenticate(user=self.user1)
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
+        response = self.client.get(f'/api/datacollection/apiaryhubs/')
+        assert response.status_code == status.HTTP_200_OK
+        # Assuming the response.data is a list of hubs
+        for hub in response.data:
+            apiary_hub = ApiaryHub.objects.get(api_key=api_key)
+            apiary = apiary_hub.apiary
+            assert apiary.owner.id == self.user1.id
 
-    # def test_user_can_update_own_hive_returns_200(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     updated_data = {
-    #         'name': "Updated Hive",
-    #         'description': 'Updated Hive Description'
-    #     }
-    #     response = self.client.patch(f'/api/apiaries/{self.apiary1.id}/hives/{self.hive1.id}/', updated_data)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.hive1.refresh_from_db()
-    #     assert self.hive1.name == 'Updated Hive'
+    def test_user_can_update_own_apiaryhub_returns_200(self):
+        self.client.force_authenticate(user=self.user1)
+        update_data = {
+            'type': 'experimental',
+            'end_date': '2023-12-31',
+            'last_connected_at': '2023-11-06T15:30:00.123456',
+            'battery_level': 4.7,
+            'software_version': 1.11,
+            'description': 'Great description',
+            'apiary': self.apiary1.pk
+        }
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
+        response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
+        assert response.status_code == status.HTTP_200_OK
+        self.apiaryhub1.refresh_from_db()
+        assert self.apiaryhub1.type == 'experimental'
 
     # def test_user_cannot_update_other_users_hive_returns_403(self):
     #     self.client.force_authenticate(user=self.user1)
