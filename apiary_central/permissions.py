@@ -42,8 +42,9 @@ class IsApiaryOwner(permissions.BasePermission):
 
         # For methods that create or modify resources, check ownership
         if request.method in ['POST', 'PUT', 'PATCH']:
-            # print(f'################## data from test: {request.data}')
+            # print(f'################## user from test: {request.user}')
             apiary_id = request.data.get('apiary')
+            # print(f'################## apiary id from test: {apiary_id}')
             if apiary_id is None:
                 # If there's no apiary ID in the request, deny permission
                 return False
@@ -51,6 +52,8 @@ class IsApiaryOwner(permissions.BasePermission):
             # Check if the apiary exists and is owned by the requesting user
             try:
                 apiary = Apiary.objects.get(pk=apiary_id)
+                # print(f'################## apiary object from db: {apiary}')
+                # print(f'################## return boolean result: {apiary.owner == request.user}')
                 return apiary.owner == request.user
             except Apiary.DoesNotExist:
                 # If the apiary doesn't exist, deny permission
@@ -65,9 +68,19 @@ class IsApiaryOwner(permissions.BasePermission):
 
 
     def has_object_permission(self, request, view, obj):
+        # Staff users can do anything
         if request.user.is_staff:
             return True
+
+        # Owners can read their own objects
         if request.method in permissions.SAFE_METHODS:
             return obj.apiary.owner == request.user
-        return obj.apiary.owner == request.user and request.method == 'DELETE'
+
+        # Owners can delete or update their own objects
+        if request.method in ['DELETE', 'PATCH']:
+            return obj.apiary.owner == request.user
+
+        # By default, no other actions are allowed
+        return False
+
 
