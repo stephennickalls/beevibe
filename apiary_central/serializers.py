@@ -1,6 +1,7 @@
 from decimal import Decimal
 from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub
 from rest_framework import serializers
+from .validators import validate_datetime_format
 
 
 
@@ -74,6 +75,7 @@ def update(self, instance, validated_data):
 class ApiaryHubSerializer(serializers.ModelSerializer):
     api_key = serializers.UUIDField(read_only=True)
     apiary = serializers.PrimaryKeyRelatedField(queryset=Apiary.objects.all(), required=False, allow_null=True)
+    last_connected_at = serializers.DateTimeField(validators=[validate_datetime_format])
     class Meta:
         model = ApiaryHub
         fields = ['api_key', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description', 'apiary']
