@@ -23,3 +23,8 @@
 { "Datetime": "2023-10-18 04:30:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.25", "Rssi(avg)": "-79" }, 
 { "Datetime": "2023-10-18 04:15:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.25", "Rssi(avg)": "-80" }, 
 { "Datetime": "2023-10-18 04:00:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.25", "Rssi(avg)": "-77" }]
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5OTQwNTY0MywiaWF0IjoxNjk5MzE5MjQzLCJqdGkiOiI5YWEwNmU4MWI1ZTc0MmZkYWViMmQ5NjIxNTYzYzJlNyIsInVzZXJfaWQiOjF9.uqD6_6l1Uu_KrT5lAaY9Sg9373KWV-LwHHHpv_BJk7Q",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5OTI0MDQzLCJpYXQiOjE2OTkzMTkyNDMsImp0aSI6IjdjZDUyMGMxNzdhNDQ0OTk4YTI3YzhjNDgzNmY2ZWU0IiwidXNlcl9pZCI6MX0.GY75vEBdeXOpUZ-R91b5WAa59thtlX6sDI2GyYNITQ8"
+}

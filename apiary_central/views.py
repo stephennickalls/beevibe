@@ -70,9 +70,21 @@ class DataCollectionViewSet(ViewSet):
         })
 
 class ApiaryHubViewSet(ModelViewSet):
-    queryset = ApiaryHub.objects.all()
     serializer_class = ApiaryHubSerializer
     permission_classes = [IsAuthenticated, IsApiaryOwner]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return ApiaryHub.objects.all()
+        return ApiaryHub.objects.filter(apiary__owner=user)
+    
+    def get_object(self):
+        # Override the default behavior to use 'api_key' instead of 'pk'
+        api_key = self.kwargs.get('api_key')
+        obj = get_object_or_404(ApiaryHub, api_key=api_key)
+        self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
+        return obj
     
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')

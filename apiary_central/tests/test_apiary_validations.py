@@ -14,7 +14,7 @@ class TestAliaryValidations(APITestCase):
         self.user2 = User.objects.create_user(username='user2', email='user2@email.com', password="test")
 
 
-    def test_apiary_creation_with_valid_data(self):
+    def test_apiary_creation_with_valid_data_returns_201(self):
         self.client.force_authenticate(user=self.user1)
         valid_data = {
             'name': 'test name',
@@ -28,7 +28,7 @@ class TestAliaryValidations(APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
 
 
-    def test_apiary_creation_with_invalid_latitude(self):
+    def test_apiary_creation_with_invalid_latitude_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         valid_data = {
             'name': 'test name',
@@ -41,7 +41,7 @@ class TestAliaryValidations(APITestCase):
         response = self.client.post('/api/apiaries/', valid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_apiary_creation_with_invalid_longitude(self):
+    def test_apiary_creation_with_invalid_longitude_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         valid_data = {
             'name': 'test name',
@@ -54,7 +54,7 @@ class TestAliaryValidations(APITestCase):
         response = self.client.post('/api/apiaries/', valid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_apiary_creation_with_duplicate_registration(self):
+    def test_apiary_creation_with_duplicate_registration_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         apiary_with_unique_registration = {
             'name': 'test name 1',
@@ -78,7 +78,7 @@ class TestAliaryValidations(APITestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST        
 
 
-    def test_apiary_creation_without_required_owner(self):
+    def test_apiary_creation_without_required_owner_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'name': 'test name',
@@ -90,7 +90,7 @@ class TestAliaryValidations(APITestCase):
         response = self.client.post('/api/apiaries/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_apiary_creation_without_required_registration_number(self):
+    def test_apiary_creation_without_required_registration_number_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'name': 'test name',
@@ -103,7 +103,7 @@ class TestAliaryValidations(APITestCase):
         response = self.client.post('/api/apiaries/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_apiary_creation_without_required_latitude(self):
+    def test_apiary_creation_without_required_latitude_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'name': 'test name', 
@@ -116,7 +116,7 @@ class TestAliaryValidations(APITestCase):
         response = self.client.post('/api/apiaries/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_apiary_creation_without_required_longitude(self):
+    def test_apiary_creation_without_required_longitude_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'name': 'test name', 

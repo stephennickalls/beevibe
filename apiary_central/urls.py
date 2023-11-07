@@ -61,7 +61,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('apiaries/', include(apiaries_router.urls)),
     path('datacollection/apiaryhubs/', datacollection_apiaryhubs_list, name='datacollection-apiaryhubs-list'),
-    path('datacollection/apiaryhubs/<int:pk>/', datacollection_apiaryhubs_detail, name='datacollection-apiaryhubs-detail'),
+    path('datacollection/apiaryhubs/<uuid:api_key>/', datacollection_apiaryhubs_detail, name='datacollection-apiaryhubs-detail'),
     path('datacollection/sensors/', datacollection_sensors_list, name='datacollection-sensors-list'),
     path('datacollection/sensors/<int:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
     path('datacollection/apiayhubdataupload/', datacollection_apiayhubdataupload_list, name='datacollection-apiayhubdataupload-list'),
