@@ -141,43 +141,47 @@ class TestApiaryHubPermissions(APITestCase):
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_apiary_creation_without_required_owner_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'name': 'test name',
-    #         'latitude': 90.0, 
-    #         'longitude': 100.0,
-    #         'description': "a great description",
-    #         'registration_number': 'gh9984',
-    #     }
-    #     response = self.client.post('/api/apiaries/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_apiaryhub_creation_with_negative_software_version_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'type': 'test hub name',
+            'end_date': '2023-12-42',
+            'last_connected_at': '2023-11-06T15:30:00.123456',
+            'battery_level ': 101,
+            'software_version': 11.20,
+            'description': 'Test hub description',
+            'apiary': self.apiary1.id # apiary owned by user1
+        }
+        response = self.client.post('/api/datacollection/apiaryhubs/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_apiary_creation_without_required_registration_number_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'name': 'test name',
-    #         'latitude': 90.0, 
-    #         'longitude': 100.0,
-    #         'description': "a great description",
-    #         'owner': self.user1.id
-            
-    #     }
-    #     response = self.client.post('/api/apiaries/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_apiaryhub_creation_with_software_version_greater_than_100_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'type': 'test hub name',
+            'end_date': '2023-12-42',
+            'last_connected_at': '2023-11-06T15:30:00.123456',
+            'battery_level ': 101,
+            'software_version': 110.20,
+            'description': 'Test hub description',
+            'apiary': self.apiary1.id # apiary owned by user1
+        }
+        response = self.client.post('/api/datacollection/apiaryhubs/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_apiary_creation_without_required_latitude_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'name': 'test name', 
-    #         'longitude': 100.0,
-    #         'description': "a great description",
-    #         'registration_number': 'sd3356',
-    #         'owner': self.user1.id
-            
-    #     }
-    #     response = self.client.post('/api/apiaries/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_apiaryhub_creation_without_requiered_apiary_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'type': 'test hub name',
+            'end_date': '2023-12-42',
+            'last_connected_at': '2023-11-06T15:30:00.123456',
+            'battery_level ': 101,
+            'software_version': 110.20,
+            'description': 'Test hub description',
+            # 'apiary': self.apiary1.id 
+        }
+        response = self.client.post('/api/datacollection/apiaryhubs/', data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     # def test_apiary_creation_without_required_longitude_returns_400(self):
     #     self.client.force_authenticate(user=self.user1)

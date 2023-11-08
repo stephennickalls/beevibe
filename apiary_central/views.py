@@ -90,6 +90,7 @@ class ApiaryHubViewSet(ModelViewSet):
         # print(f'########## permissions check result = {result}')
         return obj
     
+    
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')
     serializer_class = SensorSerializer

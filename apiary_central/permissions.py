@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import permissions
 from .models import Apiary
 
@@ -47,7 +48,7 @@ class IsApiaryOwner(permissions.BasePermission):
             # print(f'################## apiary id from test: {apiary_id}')
             if apiary_id is None:
                 # If there's no apiary ID in the request, deny permission
-                return False
+                raise ValidationError({'apiary': 'This field is required.'})
             
             # Check if the apiary exists and is owned by the requesting user
             try:
