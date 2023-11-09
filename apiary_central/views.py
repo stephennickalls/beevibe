@@ -81,13 +81,9 @@ class ApiaryHubViewSet(ModelViewSet):
     
     def get_object(self):
         # Override the default behavior to use 'api_key' instead of 'pk'
-        # print('######## get object called')
         api_key = self.kwargs.get('api_key')
-        # print(f'########## api key = {api_key}')
         obj = get_object_or_404(ApiaryHub, api_key=api_key)
-        # print(f'########## apiary hub object from db = {obj}')
         result = self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
-        # print(f'########## permissions check result = {result}')
         return obj
     
     

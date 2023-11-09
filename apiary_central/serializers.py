@@ -73,6 +73,7 @@ def update(self, instance, validated_data):
     return instance
 
 class ApiaryHubSerializer(serializers.ModelSerializer):
+    print('ApiaryHubSerializer called')
     api_key = serializers.UUIDField(read_only=True)
     apiary = serializers.PrimaryKeyRelatedField(queryset=Apiary.objects.all())
     last_connected_at = serializers.DateTimeField(validators=[validate_datetime_format])

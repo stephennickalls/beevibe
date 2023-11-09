@@ -43,18 +43,14 @@ class IsApiaryOwner(permissions.BasePermission):
 
         # For methods that create or modify resources, check ownership
         if request.method in ['POST', 'PUT', 'PATCH']:
-            # print(f'################## user from test: {request.user}')
             apiary_id = request.data.get('apiary')
-            # print(f'################## apiary id from test: {apiary_id}')
             if apiary_id is None:
                 # If there's no apiary ID in the request, deny permission
-                raise ValidationError({'apiary': 'This field is required.'})
+                return False
             
             # Check if the apiary exists and is owned by the requesting user
             try:
                 apiary = Apiary.objects.get(pk=apiary_id)
-                # print(f'################## apiary object from db: {apiary}')
-                # print(f'################## return boolean result: {apiary.owner == request.user}')
                 return apiary.owner == request.user
             except Apiary.DoesNotExist:
                 # If the apiary doesn't exist, deny permission
@@ -69,6 +65,7 @@ class IsApiaryOwner(permissions.BasePermission):
 
 
     def has_object_permission(self, request, view, obj):
+        print('has_object_permission called')
         # Staff users can do anything
         if request.user.is_staff:
             return True
