@@ -183,9 +183,3 @@ class TestApiaryHubPermissions(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         self.apiaryhub1.refresh_from_db()
         assert self.apiaryhub1.type == 'experimental'
-
-    # def test_user_cannot_update_other_users_hive_returns_403(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     update_data = {'name': 'Should Not Update'}
-    #     response = self.client.patch(f'/api/apiaries/{self.apiary2.id}/hives/{self.hive2.id}/', update_data)
-    #     assert response.status_code == status.HTTP_403_FORBIDDEN

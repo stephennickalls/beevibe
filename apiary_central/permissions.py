@@ -42,7 +42,6 @@ class IsApiaryOwner(permissions.BasePermission):
 
         # For methods that create or modify resources, check ownership
         if request.method in ['POST', 'PUT', 'PATCH']:
-            # print(f'################## data from test: {request.data}')
             apiary_id = request.data.get('apiary')
             if apiary_id is None:
                 # If there's no apiary ID in the request, deny permission
