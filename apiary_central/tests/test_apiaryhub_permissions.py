@@ -171,11 +171,6 @@ class TestApiaryHubPermissions(APITestCase):
         self.client.force_authenticate(user=self.user1)
         update_data = {
             'type': 'experimental',
-            'end_date': '2023-12-31',
-            'last_connected_at': '2023-11-06T15:30:00.123456',
-            'battery_level': 4.7,
-            'software_version': 1.11,
-            'description': 'Great description',
             'apiary': self.apiary1.pk
         }
         api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
@@ -183,3 +178,17 @@ class TestApiaryHubPermissions(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         self.apiaryhub1.refresh_from_db()
         assert self.apiaryhub1.type == 'experimental'
+
+    def test_user_cannot_update_other_users_apiaryhub_returns_403(self):
+        self.client.force_authenticate(user=self.user1)
+        update_data = {
+            'type': 'experimental',
+            'apiary': self.apiary1.pk
+        }
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+# TODO : Access After Deletion
+# TODO : API Key Regeneration users should be able to regenerate the api_key for an ApiaryHub, 
+# test that the old key is invalidated and that the new key does not grant access to unauthorized users.

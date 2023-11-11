@@ -62,9 +62,7 @@ class ApiaryHub(models.Model):
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='hubs')
     
-
 
     def __str__(self):
         return str(self.api_key)

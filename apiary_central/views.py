@@ -83,8 +83,9 @@ class ApiaryHubViewSet(ModelViewSet):
         # Override the default behavior to use 'api_key' instead of 'pk'
         api_key = self.kwargs.get('api_key')
         obj = get_object_or_404(ApiaryHub, api_key=api_key)
-        self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
+        result = self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
         return obj
+    
     
 class SensorViewSet(ModelViewSet):
     queryset = Sensor.objects.all().select_related('hive')

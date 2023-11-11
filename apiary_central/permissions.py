@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import permissions
 from .models import Apiary
 
@@ -64,9 +65,20 @@ class IsApiaryOwner(permissions.BasePermission):
 
 
     def has_object_permission(self, request, view, obj):
+        print('has_object_permission called')
+        # Staff users can do anything
         if request.user.is_staff:
             return True
+
+        # Owners can read their own objects
         if request.method in permissions.SAFE_METHODS:
             return obj.apiary.owner == request.user
-        return obj.apiary.owner == request.user and request.method == 'DELETE'
+
+        # Owners can delete or update their own objects
+        if request.method in ['DELETE', 'PATCH']:
+            return obj.apiary.owner == request.user
+
+        # By default, no other actions are allowed
+        return False
+
 
