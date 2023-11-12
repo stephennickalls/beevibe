@@ -46,7 +46,7 @@ class HiveComponent(models.Model):
 
 
 def generate_api_key():
-        return uuid4().hex 
+        return uuid4().hex
 
 class ApiaryHub(models.Model):
     api_key = models.UUIDField(unique=True, default=generate_api_key)
@@ -78,22 +78,23 @@ class DataTransmission(models.Model):
         return str(self.transmission_uuid)
     
 class SensorType(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    type = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.type
 
 
 class Sensor(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
     sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    last_reading = models.FloatField(null=True, blank=True)
+    last_reading = models.DecimalField(max_digits=5, decimal_places=2, 
+                                        validators=[MinValueValidator(0.0), MaxValueValidator(400.0)], null=True, blank=True)
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
-    class Meta:
-        unique_together = ('hive', 'sensor_type')
+    # class Meta:
+    #     unique_together = ('hive', 'sensor_type')
 
     def __str__(self):
         return str(self.uuid)

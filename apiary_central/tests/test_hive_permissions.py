@@ -12,6 +12,7 @@ class TestHivePermissions(APITestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(username='user1', email='user1@email.com', password="test")
         self.user2 = User.objects.create_user(username='user2', email='user2@email.com', password="test")
+        self.staffuser = User.objects.create_user(username='staffuser', email='staffuser@email.com', password="test", is_staff=True)
         # Set one apiary with one hive
         self.apiary1 = Apiary.objects.create(
                 name='Apiary1',

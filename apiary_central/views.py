@@ -88,8 +88,16 @@ class ApiaryHubViewSet(ModelViewSet):
     
     
 class SensorViewSet(ModelViewSet):
-    queryset = Sensor.objects.all().select_related('hive')
+    # queryset = Sensor.objects.all().select_related('hive')
     serializer_class = SensorSerializer
+    permission_classes = [IsAuthenticated, IsHiveOwner]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Sensor.objects.all().select_related('hive')
+        return Sensor.objects.filter(hive__apiary__owner=user).select_related('hive')
+
 
 class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we do not need update or delete here
     serializer_class = SensorDataSerializer

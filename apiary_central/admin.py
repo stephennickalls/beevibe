@@ -82,8 +82,8 @@ class HiveComponentAdmin(admin.ModelAdmin):
 
 @admin.register(models.SensorType)
 class SensorTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'description']
-    search_fields = ['name']
+    list_display = ['type', 'description']
+    search_fields = ['type']
     list_per_page = 10
 
 @admin.register(models.Sensor)

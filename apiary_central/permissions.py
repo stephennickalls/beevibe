@@ -1,6 +1,6 @@
 from django.forms import ValidationError
 from rest_framework import permissions
-from .models import Apiary
+from .models import Apiary, Hive
 
 
 class IsHiveOwner(permissions.BasePermission):
@@ -8,23 +8,32 @@ class IsHiveOwner(permissions.BasePermission):
         if request.user.is_staff:  # Allow staff to access everything
             return True
 
-        # For non-staff users, check ownership
-        user = request.user
-        apiary_id = view.kwargs['apiary_pk']
+        if 'apiary_pk' in view.kwargs:
+            return self.check_apiary_ownership(request.user, view.kwargs['apiary_pk'])
+        elif 'hive' in request.data:
+            return self.check_hive_ownership(request.user, request.data['hive'])
 
+        return True  # Default to True if neither condition is met
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_staff:  # Allow staff to access everything
+            return True
+
+        return obj.apiary.owner == request.user
+
+    def check_apiary_ownership(self, user, apiary_id):
         try:
             apiary = Apiary.objects.get(id=apiary_id, owner=user)
             return True
         except Apiary.DoesNotExist:
             return False
 
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_staff:  # Allow staff to access everything
-            return True
-
-        # For non-staff users, check ownership of the object
-        user = request.user
-        return obj.apiary.owner == user
+    def check_hive_ownership(self, user, hive_id):
+        try:
+            hive = Hive.objects.get(id=hive_id)
+            return hive.apiary.owner == user
+        except Hive.DoesNotExist:
+            return False
     
 
 class IsApiaryOwner(permissions.BasePermission):
@@ -65,7 +74,7 @@ class IsApiaryOwner(permissions.BasePermission):
 
 
     def has_object_permission(self, request, view, obj):
-        print('has_object_permission called')
+        # print('has_object_permission called')
         # Staff users can do anything
         if request.user.is_staff:
             return True

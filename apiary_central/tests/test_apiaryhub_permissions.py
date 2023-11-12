@@ -31,8 +31,8 @@ class TestApiaryHubPermissions(APITestCase):
                 registration_number='hg9989',
                 owner=self.user2
         )
-        self.apiary3 = Apiary.objects.create(
-                name='Apiary3',
+        self.staffapiary = Apiary.objects.create(
+                name='staff apiary',
                 latitude=41.0,
                 longitude=120.0,
                 registration_number='ui9989',
@@ -59,14 +59,14 @@ class TestApiaryHubPermissions(APITestCase):
             description = 'Great description of apiary hub 2',
             apiary = self.apiary2
         )
-        self.apiaryhub3 = ApiaryHub.objects.create(
+        self.staffapiaryhub = ApiaryHub.objects.create(
             type = 'esp32',
             end_date = '2023-12-19',
             last_connected_at = '2023-11-06T15:30:00.123456',
             battery_level = 4.9,
             software_version = 1.00,
             description = 'Great description of apiary hub 3',
-            apiary = self.apiary3
+            apiary = self.staffapiary
         )
 
     def test_if_user_is_authenticated_creating_apiaryhub_returns_201(self):
@@ -97,8 +97,21 @@ class TestApiaryHubPermissions(APITestCase):
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+    def test_staff_user_can_create_apiaryhub_for_other_user_returns_201(self):
+        self.client.force_authenticate(user=self.staffuser)
+        valid_data = {
+            'type': 'esp32',
+            'end_date': '2023-12-31',
+            'last_connected_at': '2023-11-06T15:30:00.123456',
+            'battery_level': 4.7,
+            'software_version': 1.11,
+            'description': 'Great description',
+            'apiary': self.apiary1.pk
+        }
+        response = self.client.post('/api/datacollection/apiaryhubs/', valid_data)
+        assert response.status_code == status.HTTP_201_CREATED
+
     def test_apiaryhub_creation_with_other_users_apiary_returns_403(self):
-        print("Test started")
         self.client.force_authenticate(user=self.user1)
         data = {
             'type': 'esp32',
@@ -128,7 +141,7 @@ class TestApiaryHubPermissions(APITestCase):
     
     def test_staff_user_can_delete_own_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.staffuser)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub3.api_key)
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.staffapiary.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hive has been deleted
@@ -141,6 +154,7 @@ class TestApiaryHubPermissions(APITestCase):
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hive has been deleted
         self.assertFalse(ApiaryHub.objects.filter(api_key=api_key).exists())
+
 
     def test_user_can_delete_own_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.user1)
@@ -189,6 +203,13 @@ class TestApiaryHubPermissions(APITestCase):
         response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-# TODO : Access After Deletion
-# TODO : API Key Regeneration users should be able to regenerate the api_key for an ApiaryHub, 
-# test that the old key is invalidated and that the new key does not grant access to unauthorized users.
+    def test_staff_user_can_update_other_users_apiaryhub_returns_200(self):
+        self.client.force_authenticate(user=self.staffuser)
+        update_data = {
+            'type': 'experimental',
+            'apiary': self.apiary2.pk
+        }
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
+        assert response.status_code == status.HTTP_200_OK
+
