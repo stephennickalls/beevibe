@@ -84,7 +84,14 @@ class ApiaryHubSerializer(serializers.ModelSerializer):
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
     hive = serializers.PrimaryKeyRelatedField(queryset=Hive.objects.all(), required=False, allow_null=True)
-    last_reading = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+    last_reading = serializers.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        required=False, 
+        allow_null=True,
+        min_value=0.0,  # Minimum value
+        max_value=400.0  # Maximum value
+    )
 
     class Meta:
         model = Sensor
