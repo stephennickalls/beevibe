@@ -90,13 +90,25 @@ class ApiaryHubViewSet(ModelViewSet):
 class SensorViewSet(ModelViewSet):
     # queryset = Sensor.objects.all().select_related('hive')
     serializer_class = SensorSerializer
-    permission_classes = [IsAuthenticated, IsHiveOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
             return Sensor.objects.all().select_related('hive')
-        return Sensor.objects.filter(hive__apiary__owner=user).select_related('hive')
+        else:
+            # Only return sensors that are in hives belonging to the user's apiaries
+            return Sensor.objects.filter(hive__apiary__owner=user).select_related('hive')
+    
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        hive_id = request.data.get('hive')
+
+        # Check if the hive belongs to the current user
+        if not Hive.objects.filter(id=hive_id, apiary__owner=user).exists():
+            raise PermissionDenied("You do not have a hive set up with that id.")
+
+        return super().create(request, *args, **kwargs)
 
 
 class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we do not need update or delete here

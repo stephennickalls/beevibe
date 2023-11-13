@@ -58,7 +58,7 @@ urlpatterns = [
     path('datacollection/apiaryhubs/', datacollection_apiaryhubs_list, name='datacollection-apiaryhubs-list'),
     path('datacollection/apiaryhubs/<uuid:api_key>/', datacollection_apiaryhubs_detail, name='datacollection-apiaryhubs-detail'),
     path('datacollection/sensors/', datacollection_sensors_list, name='datacollection-sensors-list'),
-    path('datacollection/sensors/<int:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
+    path('datacollection/sensors/<uuid:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
     path('datacollection/apiayhubdataupload/', datacollection_apiayhubdataupload_list, name='datacollection-apiayhubdataupload-list'),
     path('datacollection/apiayhubdataupload/<int:pk>/', datacollection_apiayhubdataupload_detail, name='datacollection-apiayhubdataupload-detail'),
 

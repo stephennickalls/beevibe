@@ -156,6 +156,6 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'core.CustomUser'
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+   'AUTH_HEADER_TYPES': ('Bearer',),
    'ACCESS_TOKEN_LIFETIME': timedelta(days=7)
 }

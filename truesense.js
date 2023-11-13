@@ -25,6 +25,6 @@
 { "Datetime": "2023-10-18 04:00:00", "Water Volume(sum)": "0", "Tamper(max)": "0", "Water Flow(avg)": "0", "Battery(avg)": "3.25", "Rssi(avg)": "-77" }]
 
 {
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5OTQwNTY0MywiaWF0IjoxNjk5MzE5MjQzLCJqdGkiOiI5YWEwNmU4MWI1ZTc0MmZkYWViMmQ5NjIxNTYzYzJlNyIsInVzZXJfaWQiOjF9.uqD6_6l1Uu_KrT5lAaY9Sg9373KWV-LwHHHpv_BJk7Q",
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5OTI0MDQzLCJpYXQiOjE2OTkzMTkyNDMsImp0aSI6IjdjZDUyMGMxNzdhNDQ0OTk4YTI3YzhjNDgzNmY2ZWU0IiwidXNlcl9pZCI6MX0.GY75vEBdeXOpUZ-R91b5WAa59thtlX6sDI2GyYNITQ8"
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5OTkyMDgyOCwiaWF0IjoxNjk5ODM0NDI4LCJqdGkiOiJiY2YyYmNhNjMwZGE0MzZmOTU0YzZhMGQ1NGM2YTRkMiIsInVzZXJfaWQiOjR9.kmk1dBJsuMctVI2VgiTGzFwKL4xVShrMG0boNVc19Cs",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAwNDM5MjI4LCJpYXQiOjE2OTk4MzQ0MjgsImp0aSI6IjlmMmJjOWI4YjZhNzQzNDlhMDg5YjViNzk0ODZmOTE0IiwidXNlcl9pZCI6NH0.IDpeQjkAiBprUwYMsiozuLRQQjjeMuGkLLGJYZr_7Ao"
 }

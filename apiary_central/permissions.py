@@ -5,6 +5,7 @@ from .models import Apiary, Hive
 
 class IsHiveOwner(permissions.BasePermission):
     def has_permission(self, request, view):
+        # print('has permission called')
         if request.user.is_staff:  # Allow staff to access everything
             return True
 
@@ -16,10 +17,11 @@ class IsHiveOwner(permissions.BasePermission):
         return True  # Default to True if neither condition is met
 
     def has_object_permission(self, request, view, obj):
+        # print('has object permission called')
         if request.user.is_staff:  # Allow staff to access everything
             return True
 
-        return obj.apiary.owner == request.user
+        return obj.hive.apiary.owner == request.user
 
     def check_apiary_ownership(self, user, apiary_id):
         try:
@@ -42,6 +44,7 @@ class IsApiaryOwner(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        # print('ISApiaryOwner has permission called')
         # Staff users can do anything
         if request.user.is_staff:
             return True
