@@ -144,12 +144,13 @@ class SensorViewSet(ModelViewSet):
             return Sensor.objects.filter(hive__apiary__owner=user).select_related('hive')
     
     def create(self, request, *args, **kwargs):
+        # print(f'sensor create method called. data: {request.data}')
         user = request.user
         hive_id = request.data.get('hive')
 
         # Check if the hive belongs to the current user
         if not Hive.objects.filter(id=hive_id, apiary__owner=user).exists():
-            raise PermissionDenied("You do not have a hive set up with that id.")
+            raise Http404("You do not have a hive set up with that id.")
 
         return super().create(request, *args, **kwargs)
 

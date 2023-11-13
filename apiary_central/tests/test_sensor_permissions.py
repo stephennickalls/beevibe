@@ -107,6 +107,16 @@ class TestSensorPermissions(APITestCase):
         sensor_id = self.sensor2.uuid # belongs to user2
         response = self.client.get(f'/api/datacollection/sensors/{sensor_id}/')
         assert response.status_code == status.HTTP_404_NOT_FOUND   
+
+    def test_staff_user_can_access_all_sensors_returns_200(self):
+        self.client.force_authenticate(user=self.staffuser)
+        response = self.client.get(f'/api/datacollection/sensors/')
+        assert response.status_code == status.HTTP_200_OK
+        count = 0
+        for i in response.data:
+            count = count+1
+        assert count == 2
+
     
     def test_user_can_delete_own_sensor_returns_204(self):
         self.client.force_authenticate(user=self.user1)
@@ -119,6 +129,12 @@ class TestSensorPermissions(APITestCase):
         sensor_id = self.sensor2.uuid 
         response = self.client.delete(f'/api/datacollection/sensors/{sensor_id}/') 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_staff_user_can_delete_other_users_sensor_returns_204(self):
+        self.client.force_authenticate(user=self.staffuser)
+        sensor_id = self.sensor2.uuid # belongs to user 2
+        response = self.client.delete(f'/api/datacollection/sensors/{sensor_id}/') 
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_user_can_update_own_sensor_returns_200(self):
         self.client.force_authenticate(user=self.user1)
@@ -144,3 +160,17 @@ class TestSensorPermissions(APITestCase):
         sensor_id = self.sensor2.uuid # user2's sensor
         response = self.client.patch(f'/api/datacollection/sensors/{sensor_id}/', data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_staff_user_can_update_other_users_sensor_returns_200(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            'sensor_type': self.sensor_type_weight.pk,
+            'last_reading': 102,
+            'hive':  self.hive1 # belongs to user1
+
+        }
+        sensor_id = self.sensor1.uuid 
+        response = self.client.patch(f'/api/datacollection/sensors/{sensor_id}/', data) 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.sensor1.refresh_from_db()
+        assert self.sensor1.last_reading == 102
