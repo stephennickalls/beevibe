@@ -67,7 +67,7 @@ class TestHivePermissions(APITestCase):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-    def test_hive_creation_with_other_users_apiary_returns_403(self):
+    def test_hive_creation_with_other_users_apiary_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'name': 'test name',
@@ -75,7 +75,7 @@ class TestHivePermissions(APITestCase):
             # apiary id comes from url
         }
         response = self.client.post(f'/api/apiaries/{self.apiary2.id}/hives/', data)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
     def test_user_can_access_own_hives_returns_200(self):
@@ -84,10 +84,10 @@ class TestHivePermissions(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data['name'] == self.hive1.name
 
-    def test_user_cannot_access_other_users_hives_returns_403(self):
+    def test_user_cannot_access_other_users_hives_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         response = self.client.get(f'/api/apiaries/{self.apiary2.id}/hives/{self.hive2.id}/')
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND
     
     def test_user_can_delete_own_hive_returns_204(self):
         self.client.force_authenticate(user=self.user1)
@@ -96,10 +96,10 @@ class TestHivePermissions(APITestCase):
         # Check if the hive has been deleted
         self.assertFalse(Hive.objects.filter(id=self.hive1.id).exists())
     
-    def test_user_cannot_delete_other_users_hive_returns_403(self):
+    def test_user_cannot_delete_other_users_hive_returns_404(self):
         self.client.force_authenticate(user=self.user2)
         response = self.client.delete(f'/api/apiaries/{self.apiary1.id}/hives/{self.hive1.id}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_can_only_see_own_hives_in_list_returns_200(self):
         self.client.force_authenticate(user=self.user1)
@@ -123,8 +123,8 @@ class TestHivePermissions(APITestCase):
         self.hive1.refresh_from_db()
         assert self.hive1.name == 'Updated Hive'
 
-    def test_user_cannot_update_other_users_hive_returns_403(self):
+    def test_user_cannot_update_other_users_hive_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         update_data = {'name': 'Should Not Update'}
         response = self.client.patch(f'/api/apiaries/{self.apiary2.id}/hives/{self.hive2.id}/', update_data)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND

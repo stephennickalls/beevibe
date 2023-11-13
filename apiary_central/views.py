@@ -1,4 +1,5 @@
 from django.forms import ValidationError
+from django.http import Http404
 from django.shortcuts import render
 from django.db.models.aggregates import Count
 from django.db import transaction, IntegrityError
@@ -33,26 +34,44 @@ class ApiaryViewSet(ModelViewSet):
 
 class HiveViewSet(ModelViewSet):
     serializer_class = HiveSerializer
-    permission_classes = [IsAuthenticated, IsHiveOwner]
-
+    permission_classes = [IsAuthenticated]
+    
     def get_queryset(self):
-        # Get the apiary based on the URL parameter and ensure it belongs to the current user
         user = self.request.user
-        apiary = get_object_or_404(Apiary, id=self.kwargs['apiary_pk'], owner=user)
-        # Return hives that belong to the retrieved apiary
-        return Hive.objects.filter(apiary=apiary)
+        if user.is_staff:
+            return Hive.objects.all()
+        else:
+            # Retrieve the apiary based on the URL parameter
+            apiary_id = self.kwargs['apiary_pk']
+            try:
+                apiary = Apiary.objects.get(id=apiary_id, owner=user)
+            except Apiary.DoesNotExist:
+                raise Http404("No Apiary matches the given query.")
+            return Hive.objects.filter(apiary=apiary)
 
     def get_serializer_context(self):
         return {'apiary_id': self.kwargs['apiary_pk']}
     
+    
     def create(self, request, *args, **kwargs):
+        user = request.user
+        apiary_id = self.kwargs.get('apiary_pk')  # Corrected from 'api_key' to 'apiary_pk'
+        if user.is_staff:
+            return super().create(request, *args, **kwargs)
+
+        # Check if the apiary belongs to the authenticated user
+        if not Apiary.objects.filter(id=apiary_id, owner=user).exists():
+            raise Http404("You do not have permission to add a Hive to this apiary.")
+
+        # Proceed with the normal creation process
         modified_data = request.data.copy()
-        modified_data.setdefault('apiary', self.kwargs['apiary_pk'])
+        modified_data.setdefault('apiary', apiary_id)
         serializer = self.get_serializer(data=modified_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     
 class DataCollectionViewSet(ViewSet):
     """
@@ -68,23 +87,6 @@ class DataCollectionViewSet(ViewSet):
                 "sensors": "/datacollection/sensors/"
             }
         })
-
-# class ApiaryHubViewSet(ModelViewSet):
-#     serializer_class = ApiaryHubSerializer
-#     permission_classes = [IsAuthenticated, IsApiaryOwner]
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         if user.is_staff:
-#             return ApiaryHub.objects.all()
-#         return ApiaryHub.objects.filter(apiary__owner=user)
-    
-#     def get_object(self):
-#         # Override the default behavior to use 'api_key' instead of 'pk'
-#         api_key = self.kwargs.get('api_key')
-#         obj = get_object_or_404(ApiaryHub, api_key=api_key)
-#         result = self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
-#         return obj
 
 
 class ApiaryHubViewSet(ModelViewSet):
@@ -123,7 +125,6 @@ class ApiaryHubViewSet(ModelViewSet):
         # Check if the apiary belongs to the authenticated user
         if not Apiary.objects.filter(id=apiary_id, owner=user).exists():
             raise PermissionDenied("You do not have permission to add an ApiaryHub to this apiary.")
-
         # Proceed with the normal creation process
         return super().create(request, *args, **kwargs)
 
