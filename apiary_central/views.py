@@ -69,22 +69,64 @@ class DataCollectionViewSet(ViewSet):
             }
         })
 
+# class ApiaryHubViewSet(ModelViewSet):
+#     serializer_class = ApiaryHubSerializer
+#     permission_classes = [IsAuthenticated, IsApiaryOwner]
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.is_staff:
+#             return ApiaryHub.objects.all()
+#         return ApiaryHub.objects.filter(apiary__owner=user)
+    
+#     def get_object(self):
+#         # Override the default behavior to use 'api_key' instead of 'pk'
+#         api_key = self.kwargs.get('api_key')
+#         obj = get_object_or_404(ApiaryHub, api_key=api_key)
+#         result = self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
+#         return obj
+
+
 class ApiaryHubViewSet(ModelViewSet):
     serializer_class = ApiaryHubSerializer
-    permission_classes = [IsAuthenticated, IsApiaryOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
             return ApiaryHub.objects.all()
-        return ApiaryHub.objects.filter(apiary__owner=user)
-    
+        else:
+            # Filter based on ownership of the apiary
+            return ApiaryHub.objects.filter(apiary__owner=user)
+
     def get_object(self):
         # Override the default behavior to use 'api_key' instead of 'pk'
         api_key = self.kwargs.get('api_key')
-        obj = get_object_or_404(ApiaryHub, api_key=api_key)
-        result = self.check_object_permissions(self.request, obj)  # This enforces object-level permissions
+        user = self.request.user
+
+        # Modify the query to ensure that the object belongs to the user's apiaries
+        queryset = self.filter_queryset(self.get_queryset())
+
+        try:
+            obj = queryset.get(api_key=api_key)
+        except ApiaryHub.DoesNotExist:
+            raise PermissionDenied("You do not have an Apiary Hub with that api key")
+        # No need to check object permissions here as the queryset already filters based on user
         return obj
+
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        apiary_id = request.data.get('apiary')
+        if user.is_staff:
+            return super().create(request, *args, **kwargs)
+        # Check if the apiary belongs to the authenticated user
+        if not Apiary.objects.filter(id=apiary_id, owner=user).exists():
+            raise PermissionDenied("You do not have permission to add an ApiaryHub to this apiary.")
+
+        # Proceed with the normal creation process
+        return super().create(request, *args, **kwargs)
+
     
     
 class SensorViewSet(ModelViewSet):

@@ -141,7 +141,7 @@ class TestApiaryHubPermissions(APITestCase):
     
     def test_staff_user_can_delete_own_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.staffuser)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.staffapiary.api_key)
+        api_key = FormatUUIDs.add_hyphens_to_uuid(self.staffapiaryhub.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hive has been deleted
@@ -161,7 +161,7 @@ class TestApiaryHubPermissions(APITestCase):
         api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        # Check if the hive has been deleted
+        # Check if the hub has been deleted
         self.assertFalse(ApiaryHub.objects.filter(api_key=api_key).exists())
     
     def test_user_cannot_delete_other_users_apiaryhub_returns_403(self):
