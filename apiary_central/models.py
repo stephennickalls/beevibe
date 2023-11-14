@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from .utils import UUIDs
 
 
 
@@ -45,11 +46,8 @@ class HiveComponent(models.Model):
         return str(self.type)
 
 
-def generate_api_key():
-        return uuid4().hex
-
 class ApiaryHub(models.Model):
-    api_key = models.UUIDField(unique=True, default=generate_api_key)
+    api_key = models.UUIDField(unique=True, default=UUIDs.generate_api_key)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=20)
     end_date = models.DateField(default=date(2099, 12, 31))

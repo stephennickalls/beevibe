@@ -13,12 +13,12 @@ apiaries_router = routers.NestedDefaultRouter(router, 'apiaries', lookup='apiary
 apiaries_router.register('hives', views.HiveViewSet, basename='apiary-hives')
 
 
-datacollection_apiayhubdataupload_list = views.ApiaryHubDataUploadViewSet.as_view({
+datacollection_datatransmission_list = views.DataTransmissionViewSet.as_view({
     'get': 'list',  
     'post': 'create',  
 })
 
-datacollection_apiayhubdataupload_detail = views.ApiaryHubDataUploadViewSet.as_view({
+datacollection_datatransmission_detail = views.DataTransmissionViewSet.as_view({
     'get': 'retrieve',  
     'put': 'update',  
     'patch': 'partial_update',  
@@ -59,8 +59,8 @@ urlpatterns = [
     path('datacollection/apiaryhubs/<uuid:api_key>/', datacollection_apiaryhubs_detail, name='datacollection-apiaryhubs-detail'),
     path('datacollection/sensors/', datacollection_sensors_list, name='datacollection-sensors-list'),
     path('datacollection/sensors/<uuid:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
-    path('datacollection/apiayhubdataupload/', datacollection_apiayhubdataupload_list, name='datacollection-apiayhubdataupload-list'),
-    path('datacollection/apiayhubdataupload/<int:pk>/', datacollection_apiayhubdataupload_detail, name='datacollection-apiayhubdataupload-detail'),
+    path('datacollection/datatransmission/', datacollection_datatransmission_list, name='datacollection-datatransmission-list'),
+    path('datacollection/datatransmission/<int:pk>/', datacollection_datatransmission_detail, name='datacollection-datatransmission-detail'),
 
 ]
 

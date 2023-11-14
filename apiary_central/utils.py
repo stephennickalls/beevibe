@@ -1,5 +1,8 @@
     
-class FormatUUIDs():
+from uuid import uuid4
+
+
+class UUIDs():
 
     def add_hyphens_to_uuid(uuid_string_without_hyphens):
         # Ensure the UUID string has no hyphens
@@ -12,3 +15,11 @@ class FormatUUIDs():
             uuid_string_without_hyphens[16:20],
             uuid_string_without_hyphens[20:]
         )
+    
+    def generate_api_key():
+        return uuid4().hex # may change implimentation hence not dry
+    
+    def generate_uuid():
+        return uuid4().hex
+    
+

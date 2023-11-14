@@ -115,7 +115,7 @@ class ReadingsSerializer(serializers.Serializer):
     value = serializers.DecimalField(max_digits=5,decimal_places=2, max_value=99.99, min_value=0.00)
     
 class SensorDataTransmissionSerializer(serializers.Serializer):
-    sensor_id = serializers.UUIDField(format='hex_verbose')
+    sensor_id = serializers.UUIDField(format='hex')
     type = serializers.CharField(max_length=100)
     readings = ReadingsSerializer(many=True) 
 
@@ -124,8 +124,8 @@ class HiveDataSerializer(serializers.Serializer):
     sensors = SensorDataTransmissionSerializer(many=True)
 
 class DataTransmissionSerializer(serializers.Serializer):
-    api_key = serializers.UUIDField(format='hex_verbose')
-    transmission_uuid = serializers.UUIDField(format='hex_verbose')
+    api_key = serializers.UUIDField(format='hex')
+    transmission_uuid = serializers.UUIDField(format='hex')
     transmission_tries = serializers.IntegerField(min_value=0, max_value=1000)
     start_timestamp = serializers.DateTimeField()
     end_timestamp = serializers.DateTimeField()
@@ -134,6 +134,7 @@ class DataTransmissionSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=50)
     data = HiveDataSerializer(many=True)
 
+ 
 
 
 

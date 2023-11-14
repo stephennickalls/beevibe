@@ -59,8 +59,6 @@ class TestSensorValidations(APITestCase):
             hive = self.hive2 # belongs to user2
         )
 
-    
-
     def test_sensor_creation_with_valid_data__returns_201(self):
         self.client.force_authenticate(user=self.user1)
         data = {

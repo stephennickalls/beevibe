@@ -82,7 +82,7 @@ class DataCollectionViewSet(ViewSet):
         return Response({
             "message": "This is the Data Collection endpoint.",
             "endpoints": {
-                "apiayhubdataupload": "/datacollection/apiaryhubs/apiayhubdataupload/",
+                "datatransmission": "/datacollection/datatransmission/",
                 "apiaryhubs": "/datacollection/apiaryhubs/",
                 "sensors": "/datacollection/sensors/"
             }
@@ -165,19 +165,30 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
         return {'sensor_id': self.kwargs['sensor_pk']}
 
 
-class ApiaryHubDataUploadViewSet(ModelViewSet):
+class DataTransmissionViewSet(ModelViewSet):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
+
+    # def get_queryset(self):
+    #     print(f'######## data: {self.request.data}')
+    #     return SensorDataSerializer
     
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        print('Data Transmission create called')
+        print(f'#### request data: {request.data}')
+        print(f'#### kwargs data: {self.kwargs}')
         serializer = DataTransmissionSerializer(data=request.data)
+        print('after get serializer')
         if serializer.is_valid():
             try:
+                print(f'Try called')
                 # check hub is in the database using the api_key
                 apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
                 data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
+                print(f'data transmission record method ran. response')
+                print(f' the data field looks like: {serializer.validated_data}')
                 self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
                 return Response({"success": "Data created successfully"}, status=status.HTTP_201_CREATED)
             except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError) as e:
@@ -185,12 +196,15 @@ class ApiaryHubDataUploadViewSet(ModelViewSet):
             except Exception as e:
                 return Response({"unexpected_error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
+            print('data not valid')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_apiary_hub(self, api_key):
+        print(f'get apiary hub called')
         return ApiaryHub.objects.get(api_key=api_key)
 
     def create_data_transmission_record(self, validated_data, apiary_hub):
+        print(f'create data transmission record called')
         data_transmission_record = DataTransmission(
                     transmission_uuid = validated_data['transmission_uuid'],
                     apiary=apiary_hub,
@@ -201,6 +215,7 @@ class ApiaryHubDataUploadViewSet(ModelViewSet):
         return data_transmission_record.save()
 
     def create_sensor_data(self, sensor_data, data_transmission_record):
+        print(f'create sensor data record called')
         for hive_data in sensor_data:
             hive_id = hive_data['hive_id']
             for sensor_data in hive_data['sensors']:
