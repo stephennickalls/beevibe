@@ -81,7 +81,7 @@ class TestSensorPermissions(APITestCase):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-    def test_sensor_creation_with_other_users_hive_returns_403(self):
+    def test_sensor_creation_with_other_users_hive_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
@@ -90,7 +90,7 @@ class TestSensorPermissions(APITestCase):
 
         }
         response = self.client.post(f'/api/datacollection/sensors/', data)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
     def test_user_can_access_own_sensors_returns_200(self):

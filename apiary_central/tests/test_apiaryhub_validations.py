@@ -4,7 +4,6 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
 from apiary_central.models import Apiary, ApiaryHub
-from apiary_central.utils import FormatUUIDs
 
 
 User = get_user_model()

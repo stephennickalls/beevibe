@@ -3,7 +3,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
 from apiary_central.models import Apiary, ApiaryHub
-from apiary_central.utils import FormatUUIDs
+from apiary_central.utils import UUIDs
 
 
 User = get_user_model()
@@ -136,12 +136,12 @@ class TestApiaryHubPermissions(APITestCase):
 
     def test_user_cannot_access_other_users_apiaryhubs_returns_403(self):
         self.client.force_authenticate(user=self.user1)
-        response = self.client.get(f'/api/datacollection/apiaryhubs/{FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)}/')
+        response = self.client.get(f'/api/datacollection/apiaryhubs/{UUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)}/')
         assert response.status_code == status.HTTP_403_FORBIDDEN
     
     def test_staff_user_can_delete_own_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.staffuser)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.staffapiaryhub.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.staffapiaryhub.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hive has been deleted
@@ -149,7 +149,7 @@ class TestApiaryHubPermissions(APITestCase):
 
     def test_staff_user_can_delete_other_users_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.staffuser)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hive has been deleted
@@ -158,7 +158,7 @@ class TestApiaryHubPermissions(APITestCase):
 
     def test_user_can_delete_own_apiaryhub_returns_204(self):
         self.client.force_authenticate(user=self.user1)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
         # Check if the hub has been deleted
@@ -166,13 +166,13 @@ class TestApiaryHubPermissions(APITestCase):
     
     def test_user_cannot_delete_other_users_apiaryhub_returns_403(self):
         self.client.force_authenticate(user=self.user1)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
         response = self.client.delete(f'/api/datacollection/apiaryhubs/{api_key}/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_user_can_only_see_own_apiaryhubs_in_list_returns_200(self):
         self.client.force_authenticate(user=self.user1)
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
         response = self.client.get(f'/api/datacollection/apiaryhubs/')
         assert response.status_code == status.HTTP_200_OK
         # Assuming the response.data is a list of hubs
@@ -187,7 +187,7 @@ class TestApiaryHubPermissions(APITestCase):
             'type': 'experimental',
             'apiary': self.apiary1.pk
         }
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub1.api_key)
         response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
         assert response.status_code == status.HTTP_200_OK
         self.apiaryhub1.refresh_from_db()
@@ -199,7 +199,7 @@ class TestApiaryHubPermissions(APITestCase):
             'type': 'experimental',
             'apiary': self.apiary1.pk
         }
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
         response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -209,7 +209,7 @@ class TestApiaryHubPermissions(APITestCase):
             'type': 'experimental',
             'apiary': self.apiary2.pk
         }
-        api_key = FormatUUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
+        api_key = UUIDs.add_hyphens_to_uuid(self.apiaryhub2.api_key)
         response = self.client.patch(f'/api/datacollection/apiaryhubs/{api_key}/', update_data)
         assert response.status_code == status.HTTP_200_OK
 

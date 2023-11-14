@@ -14,7 +14,6 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
-from .permissions import IsHiveOwner, IsApiaryOwner
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
 
 
