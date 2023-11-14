@@ -1,14 +1,15 @@
+from uuid import uuid4
 import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
-from apiary_central.models import Apiary, Hive, SensorType, Sensor, ApiaryHub
+from apiary_central.models import Apiary, Hive, SensorType, Sensor, ApiaryHub, DataTransmission
 from apiary_central.utils import UUIDs
 
 User = get_user_model()
 
 @pytest.mark.django_db
-class TestSensorPermissions(APITestCase):
+class TestDataTransmissionValidations(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(username='user1', email='user1@email.com', password="test")
@@ -73,6 +74,14 @@ class TestSensorPermissions(APITestCase):
             description = 'A test description',
             apiary = self.apiary1
         )
+
+        self.datatransmission1 = DataTransmission.objects.create(
+            transmission_uuid = "a441d182-bd2a-460a-89bf-cc354b09a0fa",
+            apiary_hub = self.apiaryhub1,
+            transmission_tries = 2,
+            start_timestamp = "2023-10-18T04:30:00Z",
+            end_timestamp = "2023-10-18T04:45:00Z",
+        )
   
 
     def test_data_transmission_with_valid_data_returns_201(self):
@@ -104,67 +113,103 @@ class TestSensorPermissions(APITestCase):
             ]
         }
         response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
-        print(f'################ response before test assert: {response.data}')
         assert response.status_code == status.HTTP_201_CREATED
 
 
-    # def test_sensor_creation_with_invalid_data_type_in_sensor_type_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': True,
-    #         'last_reading': 98,
-    #         'hive':  self.hive1
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_data_transmission_with_in_valid_api_key_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "a441d192-bd2a-460a-89bf-cc354b09a0ff", # invalid key - api key not in the database so apiary hub cannot authenticate. Apiary hub must have a valid api key
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_sensor_creation_with_invalid_data_type_in_last_reading_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': self.sensor_type_weight.pk,
-    #         'last_reading': True,
-    #         'hive':  self.hive1
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_data_transmission_with_duplicate_transmission_uuid_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0fa", # duplicate uuid 
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_sensor_creation_with_string_decimal_cast_to_decimal_returns_201(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': self.sensor_type_weight.pk,
-    #         'last_reading': '102',
-    #         'hive':  self.hive1
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_201_CREATED
-    #     assert response.data['last_reading'] == Decimal('102')
 
-    # def test_sensor_creation_with_negative_last_reading_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': self.sensor_type_weight.pk,
-    #         'last_reading': -1,
-    #         'hive':  self.hive1
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_data_transmission_with_neagative_transmission_tries_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
+            "transmission_tries": -2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_sensor_creation_with_last_reading_greater_than_500_returns_400(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': self.sensor_type_weight.pk,
-    #         'last_reading': 501,
-    #         'hive':  self.hive1
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # def test_sensor_creation_with_hive_that_does_not_exist_returns_404(self):
-    #     self.client.force_authenticate(user=self.user1)
-    #     data = {
-    #         'sensor_type': self.sensor_type_weight.pk,
-    #         'last_reading': -1,
-    #         'hive':  7
-    #     }
-    #     response = self.client.post(f'/api/datacollection/sensors/', data)
-    #     assert response.status_code == status.HTTP_404_NOT_FOUND
+    def test_data_transmission_with_transmission_tries_greater_than_1000_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
+            "transmission_tries": 1001,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_with_transmission_tries_string_cast_to_decimal_returns_201(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
+            "transmission_tries": "50",
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_data_transmission_with_invalid_start_time_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
+            "transmission_tries": 50,
+            "start_timestamp": "2023-10-18", # TODO must include time and send error message to say as much
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

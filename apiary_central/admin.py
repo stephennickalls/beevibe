@@ -95,7 +95,7 @@ class SensorAdmin(admin.ModelAdmin):
 
 @admin.register(models.DataTransmission)
 class DataTransmissionAdmin(admin.ModelAdmin):
-    list_display = ['transmission_uuid', 'apiary', 'transmission_tries', 'start_timestamp', 'end_timestamp']
+    list_display = ['transmission_uuid', 'apiary_hub', 'transmission_tries', 'start_timestamp', 'end_timestamp']
     search_fields = ['transmission_uuid__istartswith']
                     
 

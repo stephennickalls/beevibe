@@ -67,7 +67,7 @@ class ApiaryHub(models.Model):
     
 class DataTransmission(models.Model):
     transmission_uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    apiary = models.ForeignKey(ApiaryHub, on_delete=models.CASCADE, related_name='transmissions')
+    apiary_hub = models.ForeignKey(ApiaryHub, on_delete=models.CASCADE, related_name='transmissions')
     transmission_tries = models.IntegerField(default=0, validators=[MinValueValidator(0.0), MaxValueValidator(1000.0)],)
     start_timestamp = models.DateTimeField()
     end_timestamp = models.DateTimeField()
