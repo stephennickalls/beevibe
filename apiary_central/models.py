@@ -106,3 +106,11 @@ class SensorData(models.Model):
     class Meta:
         verbose_name = "Sensor data"
         verbose_name_plural = "Sensor data"
+
+
+class DataTransmissionLog(models.Model):
+    raw_data = models.JSONField()  # Storing raw JSON data
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Log {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"

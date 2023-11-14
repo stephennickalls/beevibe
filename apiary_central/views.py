@@ -1,3 +1,4 @@
+import json
 from django.forms import ValidationError
 from django.http import Http404
 from django.shortcuts import render
@@ -12,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework import status
 from rest_framework import serializers
-from .models import Apiary, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
+from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
 from .permissions import IsHiveOwner, IsApiaryOwner
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
 
@@ -168,14 +169,17 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
 class DataTransmissionViewSet(ModelViewSet):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
-
-    # def get_queryset(self):
-    #     print(f'######## data: {self.request.data}')
-    #     return SensorDataSerializer
     
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        # Log the raw POST data
+        try:
+            raw_data = json.loads(request.body.decode('utf-8'))  # Ensure correct decoding
+            DataTransmissionLog.objects.create(raw_data=raw_data)
+        except json.JSONDecodeError:
+            # Handle the exception if the data is not valid JSON
+            pass
         # print('Data Transmission create called')
         # print(f'#### request data: {request.data}')
         # print(f'#### kwargs data: {self.kwargs}')
