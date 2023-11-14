@@ -216,9 +216,8 @@ class DataTransmissionViewSet(ModelViewSet):
 
     def create_sensor_data(self, sensor_data, data_transmission_record):
         # print(f'create sensor data record called')
-        for hive_data in sensor_data:
-            hive_id = hive_data['hive_id']
-            for sensor_data in hive_data['sensors']:
+        for data in sensor_data:
+            for sensor_data in data['sensors']:
                 sensor = Sensor.objects.get(uuid=sensor_data['sensor_id']),
                 for readings in sensor_data['readings']:
                     sensor_data_record = SensorData(

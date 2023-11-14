@@ -91,9 +91,6 @@ class Sensor(models.Model):
                                         validators=[MinValueValidator(0.0), MaxValueValidator(400.0)], null=True, blank=True)
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
-    # class Meta:
-    #     unique_together = ('hive', 'sensor_type')
-
     def __str__(self):
         return str(self.uuid)
 

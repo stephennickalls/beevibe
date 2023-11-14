@@ -73,7 +73,6 @@ def update(self, instance, validated_data):
     return instance
 
 class ApiaryHubSerializer(serializers.ModelSerializer):
-    # print('ApiaryHubSerializer called')
     api_key = serializers.UUIDField(read_only=True)
     apiary = serializers.PrimaryKeyRelatedField(queryset=Apiary.objects.all())
     last_connected_at = serializers.DateTimeField(validators=[validate_datetime_format])
@@ -111,7 +110,7 @@ class SensorDataSerializer(serializers.ModelSerializer):
         return sensordata
     
 class ReadingsSerializer(serializers.Serializer):
-    timestamp = serializers.DateTimeField()
+    timestamp = serializers.DateTimeField(validators=[validate_datetime_format])
     value = serializers.DecimalField(max_digits=5,decimal_places=2, max_value=99.99, min_value=0.00)
     
 class SensorDataTransmissionSerializer(serializers.Serializer):
@@ -119,20 +118,19 @@ class SensorDataTransmissionSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=100)
     readings = ReadingsSerializer(many=True) 
 
-class HiveDataSerializer(serializers.Serializer):
-    hive_id = serializers.IntegerField()
+class TransmissionDataSerializer(serializers.Serializer):
     sensors = SensorDataTransmissionSerializer(many=True)
 
 class DataTransmissionSerializer(serializers.Serializer):
     api_key = serializers.UUIDField(format='hex')
     transmission_uuid = serializers.UUIDField(format='hex')
     transmission_tries = serializers.IntegerField(min_value=0, max_value=1000)
-    start_timestamp = serializers.DateTimeField()
-    end_timestamp = serializers.DateTimeField()
+    start_timestamp = serializers.DateTimeField(validators=[validate_datetime_format])
+    end_timestamp = serializers.DateTimeField(validators=[validate_datetime_format])
     software_version = serializers.DecimalField(max_digits=5,decimal_places=2, max_value=99.99, min_value=0.00)
     battery = serializers.DecimalField(max_digits=5, decimal_places=2, max_value=99.99, min_value=0.00)
     type = serializers.CharField(max_length=50)
-    data = HiveDataSerializer(many=True)
+    data = TransmissionDataSerializer(many=True)
 
  
 

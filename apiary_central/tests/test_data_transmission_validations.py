@@ -97,7 +97,6 @@ class TestDataTransmissionValidations(APITestCase):
             "type": "esp32",
             "data": [
                 {
-                    "hive_id": 1,
                     "sensors": [
                         {
                             "sensor_id": str(self.sensor2.pk), 
@@ -204,7 +203,7 @@ class TestDataTransmissionValidations(APITestCase):
             "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": 50,
-            "start_timestamp": "2023-10-18", # TODO must include time and send error message to say as much
+            "start_timestamp": "2023-10-18",
             "end_timestamp": "2023-10-18T04:45:00Z",
             "software_version": 1.1,
             "battery": 4.8,
@@ -213,3 +212,272 @@ class TestDataTransmissionValidations(APITestCase):
         }
         response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_with_boolean_in_start_time_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
+            "transmission_tries": 50,
+            "start_timestamp": True,
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_data_transmission_with_invalid_end_time_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_with_string_in_end_time_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "test",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_data_transmission_negative_software_version_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": -1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_data_transmission_software_version_greater_than_100_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 100.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_negative_battery_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": -4.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_batter_greater_than_100_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1,
+            "battery": 104.8,
+            "type": "esp32",
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_data_transmission_decimal_type_cast_to_string_returns_201(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1,
+            "battery": 4.8,
+            "type": 4.9,
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_data_transmission_boolean_in_type_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1,
+            "battery": 4.8,
+            "type": True,
+            "data": []
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_data_transmission_with_sensor_uuid_that_does_not_exist_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": [
+                {
+                    "sensors": [
+                        {
+                            "sensor_id": str(UUIDs.generate_uuid()), 
+                            "type": "TEMP",
+                            "readings": [
+                                {"timestamp": "2023-10-18T02:45:00Z", "value": 25.2},
+                                {"timestamp": "2023-10-18T03:00:00Z", "value": 25.0}
+                            ]
+                        }
+                    ]
+                }
+            
+            ]
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_data_transmission_readings_with_strinf_value_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": [
+                {
+                    "sensors": [
+                        {
+                            "sensor_id": str(self.sensor2.pk), 
+                            "type": "TEMP",
+                            "readings": '"timestamp": "2023-10-18T02:45:00Z", "value": 25.2'
+                        }
+                    ]
+                }
+            
+            ]
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+    
+    def test_data_transmission_invalid_reading_timestamp_returns_400(self):
+        self.client.force_authenticate(user=self.user1)
+        data = {
+            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "transmission_tries": 2,
+            "start_timestamp": "2023-10-18T02:45:00Z",
+            "end_timestamp": "2023-10-18T04:45:00Z",
+            "software_version": 1.1,
+            "battery": 4.8,
+            "type": "esp32",
+            "data": [
+                {
+                    "sensors": [
+                        {
+                            "sensor_id": str(self.sensor2.pk), 
+                            "type": "TEMP",
+                            "readings": [
+                                {"timestamp": "2023-10-18", "value": 25.2},
+                                {"timestamp": "2023-10-18T03:00:00Z", "value": 25.0}
+                            ]
+                        }
+                    ]
+                }
+            
+            ]
+        }
+        response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # def test_data_transmission_invalid_reading_timestamp_returns_400(self):
+    #     self.client.force_authenticate(user=self.user1)
+    #     data = {
+    #         "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+    #         "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+    #         "transmission_tries": 2,
+    #         "start_timestamp": "2023-10-18T02:45:00Z",
+    #         "end_timestamp": "2023-10-18T04:45:00Z",
+    #         "software_version": 1.1,
+    #         "battery": 4.8,
+    #         "type": "esp32",
+    #         "data": [
+    #             {
+    #                 "sensors": [
+    #                     {
+    #                         "sensor_id": str(self.sensor2.pk), 
+    #                         "type": "TEMP",
+    #                         "readings": [
+    #                             {"timestamp": "2023-10-18T03:00:00Z", "value": 25.2},
+    #                             {"timestamp": "2023-10-18T03:00:00Z", "value": 25.0}
+    #                         ]
+    #                     }
+    #                 ]
+    #             }
+            
+    #         ]
+    #     }
+    #     response = self.client.post(f'/api/datacollection/datatransmission/', data, format='json')
+    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    
+
