@@ -101,7 +101,7 @@ class SensorData(models.Model):
     value = models.FloatField()
 
     def __str__(self):
-        return f"{self.value} at {self.timestamp} for {self.sensor.type}"
+        return f"{self.value} at {self.timestamp} for {self.sensor.sensor_type}"
     
     class Meta:
         verbose_name = "Sensor data"
