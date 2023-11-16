@@ -2,7 +2,7 @@
 [
 {
     "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
-    "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+    "transmission_uuid": "a441d482-bd2a-460a-09bf-cc354b09b0bb",
     "transmission_tries": 2,
     "start_timestamp": "2023-10-18T02:45:00Z",
     "end_timestamp": "2023-10-18T04:45:00Z",
@@ -21,7 +21,7 @@
                     ]
                 },
                 {
-                    "sensor_id": "8a5c6852-3a08-4759-b816-05508fed87e3", 
+                    "sensor_id": "e1f4850c-04c0-4f85-83de-8f9131ed8752", 
                     "type": "humidity",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 65.2}

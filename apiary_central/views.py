@@ -190,9 +190,11 @@ class DataTransmissionViewSet(CreateAPIView):
                 # print(f'Try called')
                 # check hub is in the database using the api_key
                 apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
-                data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
+                self.create_data_transmission_record(serializer.validated_data, apiary_hub)
+                data_transmission_record = self.get_data_transmission_uuid(serializer.validated_data['transmission_uuid'])
                 # print(f'data transmission record method ran. response')
                 # print(f' the data field looks like: {serializer.validated_data}')
+                print(f'########## {data_transmission_record}')
                 self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
                 return Response({"success": "Data created successfully"}, status=status.HTTP_201_CREATED)
             except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError) as e:
@@ -206,6 +208,9 @@ class DataTransmissionViewSet(CreateAPIView):
     def get_apiary_hub(self, api_key):
         # print(f'get apiary hub called')
         return ApiaryHub.objects.get(api_key=api_key)
+    
+    def get_data_transmission_uuid(self, uuid):
+        return DataTransmission.objects.get(transmission_uuid=uuid)
 
     def create_data_transmission_record(self, validated_data, apiary_hub):
         # print(f'create data transmission record called')
@@ -230,6 +235,7 @@ class DataTransmissionViewSet(CreateAPIView):
                         timestamp = readings['timestamp'],
                         value = readings['value']
                     )
+                    print(f'############## transmission record: {data_transmission_record}')
 
                     sensor_data_record.save()
 
