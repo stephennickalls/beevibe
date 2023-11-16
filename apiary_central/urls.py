@@ -47,5 +47,6 @@ urlpatterns = [
     path('datacollection/sensors/', datacollection_sensors_list, name='datacollection-sensors-list'),
     path('datacollection/sensors/<uuid:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
     path('datacollection/datatransmission/', views.DataTransmissionViewSet.as_view(), name='datacollection-datatransmission-create'),
+    path('datacollection/datatransmissionlogs/', views.DataTransmissionLogViewSet.as_view(), name='datacollection-datatransmissionlogs'),
 
 ]

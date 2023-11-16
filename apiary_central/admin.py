@@ -97,6 +97,13 @@ class SensorAdmin(admin.ModelAdmin):
 class DataTransmissionAdmin(admin.ModelAdmin):
     list_display = ['transmission_uuid', 'apiary_hub', 'transmission_tries', 'start_timestamp', 'end_timestamp']
     search_fields = ['transmission_uuid__istartswith']
+
+@admin.register(models.DataTransmissionLog)
+class DataTransmissionLogsAdmin(admin.ModelAdmin):
+    list_display = ['created_at', 'raw_data' ]
+    list_per_page = 10
+    search_fields = ['created_at']
+
                     
 
 @admin.register(models.SensorData)

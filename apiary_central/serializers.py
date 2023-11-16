@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog
 from rest_framework import serializers
 from .validators import validate_datetime_format
 
@@ -131,6 +131,12 @@ class DataTransmissionSerializer(serializers.Serializer):
     battery = serializers.DecimalField(max_digits=5, decimal_places=2, max_value=99.99, min_value=0.00)
     type = serializers.CharField(max_length=50)
     data = TransmissionDataSerializer(many=True)
+
+
+class DataTransmissionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataTransmissionLog
+        fields = ['raw_data', 'create_at']
 
  
 

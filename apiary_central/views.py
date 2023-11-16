@@ -8,10 +8,10 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet, GenericViewSet
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
@@ -84,6 +84,7 @@ class DataCollectionViewSet(ViewSet):
             "message": "This is the Data Collection endpoint.",
             "endpoints": {
                 "datatransmission": "/datacollection/datatransmission/",
+                "datatransmissionlogs": "/datacollection/datatransmissionlogs/",
                 "apiaryhubs": "/datacollection/apiaryhubs/",
                 "sensors": "/datacollection/sensors/"
             }
@@ -164,6 +165,14 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
     
     def get_serializer_context(self):
         return {'sensor_id': self.kwargs['sensor_pk']}
+    
+
+class DataTransmissionLogViewSet(RetrieveAPIView):
+    serializer_class = DataTransmissionLog
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return DataTransmissionLog.objects.all()
 
 
 class DataTransmissionViewSet(CreateAPIView):
@@ -223,7 +232,6 @@ class DataTransmissionViewSet(CreateAPIView):
                         timestamp = readings['timestamp'],
                         value = readings['value']
                     )
-                    print(f'############## transmission record: {data_transmission_record}')
 
                     sensor_data_record.save()
 
