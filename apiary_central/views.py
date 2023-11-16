@@ -10,7 +10,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet, GenericViewSet
+from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
@@ -165,7 +166,7 @@ class SensorDataViewSet(ModelViewSet): # TODO : reduce this to POST and GET - we
         return {'sensor_id': self.kwargs['sensor_pk']}
 
 
-class DataTransmissionViewSet(ModelViewSet):
+class DataTransmissionViewSet(CreateAPIView):
     serializer_class = SensorDataSerializer
     queryset = SensorData.objects.all()
     
