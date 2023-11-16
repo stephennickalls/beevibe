@@ -21,11 +21,10 @@
                     ]
                 },
                 {
-                    "sensor_id": "8a7c6852-3a08-4759-b816-05508fed8342", 
+                    "sensor_id": "8a5c6852-3a08-4759-b816-05508fed87e3", 
                     "type": "humidity",
                     "readings": [
                         {"timestamp": "2023-10-18T02:45:00Z", "value": 65.2}
-  
                     ]
                 }
             ]
