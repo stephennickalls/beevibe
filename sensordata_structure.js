@@ -15,10 +15,16 @@
             "sensors": [
                 {
                     "sensor_id": "5b5c6852-3a08-4759-b816-05508fed8736", 
-                    "type": "TEMP",
+                    "type": "temp",
                     "readings": [
-                        {"timestamp": "2023-10-18T02:45:00Z", "value": 25.2},
-                        {"timestamp": "2023-10-18T03:00:00Z", "value": 25.0}
+                        {"timestamp": "2023-10-18T02:45:00Z", "value": 25.2}
+                    ]
+                },
+                {
+                    "sensor_id": "8a5c6852-3a08-4759-b816-05508fed87e3", 
+                    "type": "humidity",
+                    "readings": [
+                        {"timestamp": "2023-10-18T02:45:00Z", "value": 65.2}
                     ]
                 }
             ]
