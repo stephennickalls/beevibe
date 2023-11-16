@@ -173,37 +173,25 @@ class DataTransmissionViewSet(CreateAPIView):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Log the raw POST data
         try:
-            raw_data = json.loads(request.body.decode('utf-8'))  # Ensure correct decoding
+            # Log the raw POST data
+            raw_data = json.loads(request.body.decode('utf-8'))
             DataTransmissionLog.objects.create(raw_data=raw_data)
-        except json.JSONDecodeError:
-            # Handle the exception if the data is not valid JSON
-            pass
-        # print('Data Transmission create called')
-        # print(f'#### request data: {request.data}')
-        # print(f'#### kwargs data: {self.kwargs}')
-        serializer = DataTransmissionSerializer(data=request.data)
-        # print('after get serializer')
-        if serializer.is_valid():
-            try:
-                # print(f'Try called')
-                # check hub is in the database using the api_key
+
+            serializer = DataTransmissionSerializer(data=request.data)
+            if serializer.is_valid():
                 apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
-                self.create_data_transmission_record(serializer.validated_data, apiary_hub)
-                data_transmission_record = self.get_data_transmission_uuid(serializer.validated_data['transmission_uuid'])
-                # print(f'data transmission record method ran. response')
-                # print(f' the data field looks like: {serializer.validated_data}')
-                print(f'########## {data_transmission_record}')
+                data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
                 self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
-                return Response({"success": "Data created successfully"}, status=status.HTTP_201_CREATED)
-            except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError) as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                return Response({"unexpected_error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            # print('data not valid')
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": "Data transmission successfull"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError, json.JSONDecodeError) as e:
+            # Rollback is automatic here due to the transaction.atomic decorator
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # For any other unexpected error
+            return Response({"unexpected_error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_apiary_hub(self, api_key):
         # print(f'get apiary hub called')
