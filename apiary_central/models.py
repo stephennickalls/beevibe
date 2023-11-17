@@ -92,7 +92,7 @@ class Sensor(models.Model):
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     def __str__(self):
-        return str(self.uuid)
+        return f"{str(self.uuid)} - {self.sensor_type}"
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')
