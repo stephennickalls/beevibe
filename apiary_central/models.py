@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Count
 from .utils import UUIDs
 
 
@@ -44,6 +45,14 @@ class HiveComponent(models.Model):
 
     def __str__(self):
         return str(self.type)
+    
+
+class TransmissionTimeSlot(models.Model):
+    slot_indicator = models.IntegerField(unique=True)
+
+    def __str__(self):
+        return f"Slot {self.slot_indicator}"
+
 
 
 class ApiaryHub(models.Model):
@@ -59,8 +68,20 @@ class ApiaryHub(models.Model):
                                         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
+    transmission_slot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.SET_NULL, null=True, blank=True)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
-    
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Check if it's a new instance
+            self.transmission_slot = self.get_least_populated_slot()
+        super(ApiaryHub, self).save(*args, **kwargs)
+
+    @staticmethod
+    def get_least_populated_slot():
+        slot_counts = TransmissionTimeSlot.objects.annotate(count=Count('apiaryhub')).order_by('count')
+        if slot_counts.exists():
+            return slot_counts.first()
+        return None
 
     def __str__(self):
         return str(self.api_key)

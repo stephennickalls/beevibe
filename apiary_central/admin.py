@@ -39,6 +39,10 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+@admin.register(models.TransmissionTimeSlot)
+class TransmissionTimeSlotAdmin(admin.ModelAdmin):
+    list_display = ['slot_indicator']
+
 @admin.register(models.Apiary)
 class ApiaryAdmin(admin.ModelAdmin):
     autocomplete_fields = ['owner']
