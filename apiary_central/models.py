@@ -57,6 +57,7 @@ class TransmissionTimeSlot(models.Model):
 
 class ApiaryHub(models.Model):
     api_key = models.UUIDField(unique=True, default=UUIDs.generate_api_key)
+    config_sensors = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=20)
     end_date = models.DateField(default=date(2099, 12, 31))
