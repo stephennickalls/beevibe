@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-from .secret import Secret
+import os
+# from .secret import Secret
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -91,15 +92,32 @@ WSGI_APPLICATION = 'beevibe.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD', 'default_local_db_password')
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'beevibe',
+#         'HOST': 'localhost',
+#         'USER': 'root',
+#         'PASSWORD': Secret.secret(),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'beevibe',
         'HOST': 'localhost',
         'USER': 'root',
-        'PASSWORD': Secret.secret(),
+        'PASSWORD': DATABASE_PASSWORD,
     }
 }
+
+
+
+
 
 
 # Password validation
