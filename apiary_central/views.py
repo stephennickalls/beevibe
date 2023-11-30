@@ -245,16 +245,16 @@ class ApiaryHubConfViewSet(ViewSet):
     @action(detail=True, methods=['get'])
     def get_config(self, request, pk=None):
         try:
-            apiaryhub = ApiaryHub.objects.get(api_key=pk)
-            sensors = Sensor.objects.filter(hive__apiary__apiaryhub__api_key=pk)
+            hub = ApiaryHub.objects.get(api_key=pk)
+            sensors = Sensor.objects.filter(hive__apiary__hub__api_key=pk)
             serializer = SensorSerializer(sensors, many=True)
             response_data = {
                 'sensors': serializer.data,
-                'configSensors': apiaryhub.config_sensors
+                'configSensors': hub.config_sensors
             }
             # Reset the config_sensors flag after sending the response
-            apiaryhub.config_sensors = False
-            apiaryhub.save()
+            hub.config_sensors = False
+            hub.save()
             return Response(response_data)
         except ApiaryHub.DoesNotExist:
             return Response({'error': 'Hub not found'}, status=404)

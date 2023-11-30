@@ -70,7 +70,7 @@ class ApiaryHub(models.Model):
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     transmission_slot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.SET_NULL, null=True, blank=True)
-    apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
+    apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hub')
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if it's a new instance

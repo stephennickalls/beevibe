@@ -106,9 +106,7 @@ class DataTransmissionAdmin(admin.ModelAdmin):
 class DataTransmissionLogsAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'raw_data' ]
     list_per_page = 10
-    search_fields = ['created_at']
-
-                    
+    search_fields = ['created_at']                  
 
 @admin.register(models.SensorData)
 class SensorDataAdmin(admin.ModelAdmin):
@@ -116,3 +114,4 @@ class SensorDataAdmin(admin.ModelAdmin):
     autocomplete_fields = ['sensor', 'transmission']
     search_fields = ['sensor__uuid', 'transmission__uuid']
     list_per_page = 10
+
