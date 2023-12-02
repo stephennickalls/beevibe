@@ -7,7 +7,9 @@ from . import views
 # Your routers definition
 router = routers.DefaultRouter()
 router.register('apiaries', views.ApiaryViewSet, basename='apiaries')
+router.register('apiaryhubconfig', views.ApiaryHubConfViewSet, basename='apiaryhubconfig')
 router.register('datacollection', views.DataCollectionViewSet, basename='datacollection')
+
 
 apiaries_router = routers.NestedDefaultRouter(router, 'apiaries', lookup='apiary')
 apiaries_router.register('hives', views.HiveViewSet, basename='apiary-hives')

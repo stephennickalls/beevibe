@@ -57,6 +57,7 @@ class TransmissionTimeSlot(models.Model):
 
 class ApiaryHub(models.Model):
     api_key = models.UUIDField(unique=True, default=UUIDs.generate_api_key)
+    config_sensors = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=20)
     end_date = models.DateField(default=date(2099, 12, 31))
@@ -69,7 +70,7 @@ class ApiaryHub(models.Model):
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     transmission_slot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.SET_NULL, null=True, blank=True)
-    apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hubs')
+    apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hub')
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if it's a new instance
@@ -97,23 +98,37 @@ class DataTransmission(models.Model):
         return str(self.transmission_uuid)
     
 class SensorType(models.Model):
-    type = models.CharField(max_length=50, unique=True)
+    TEMPERATURE_HUMIDITY = 'temp_hum'
+    TEMPERATURE = 'temp'
+    HUMIDITY = 'hum'
+    WEIGHT = 'weight'
+
+    SENSOR_TYPE_CHOICES = [
+        (TEMPERATURE_HUMIDITY, 'Temperature and Humidity'),
+        (TEMPERATURE, 'Temperature'),
+        (HUMIDITY, 'Humidity'),
+        (WEIGHT, 'Weight'),
+    ]
+
+    type = models.CharField(max_length=50, choices=SENSOR_TYPE_CHOICES, unique=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.type
+        return self.get_type_display()
 
 
 class Sensor(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
+    ble_charateristic_uuid = models.UUIDField(unique=True, default=uuid4, verbose_name="BLE Characteristic UUID")
     sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     last_reading = models.DecimalField(max_digits=5, decimal_places=2, 
-                                        validators=[MinValueValidator(0.0), MaxValueValidator(400.0)], null=True, blank=True)
+                                       validators=[MinValueValidator(0.0), MaxValueValidator(400.0)], null=True, blank=True)
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     def __str__(self):
         return f"{str(self.uuid)} - {self.sensor_type}"
+
 
 class SensorData(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='data')

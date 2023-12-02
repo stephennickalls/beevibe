@@ -6,10 +6,12 @@ from django.db.models.aggregates import Count
 from django.db import transaction, IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet, GenericViewSet
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework import status
@@ -236,8 +238,26 @@ class DataTransmissionViewSet(CreateAPIView):
                     sensor_data_record.save()
 
 
+class ApiaryHubConfViewSet(ViewSet):
 
+    # api/apiaryhubconfig/<uuid>/get_config/
 
+    @action(detail=True, methods=['get'])
+    def get_config(self, request, pk=None):
+        try:
+            hub = ApiaryHub.objects.get(api_key=pk)
+            sensors = Sensor.objects.filter(hive__apiary__hub__api_key=pk)
+            serializer = SensorSerializer(sensors, many=True)
+            response_data = {
+                'sensors': serializer.data,
+                'configSensors': hub.config_sensors
+            }
+            # Reset the config_sensors flag after sending the response
+            hub.config_sensors = False
+            hub.save()
+            return Response(response_data)
+        except ApiaryHub.DoesNotExist:
+            return Response({'error': 'Hub not found'}, status=404)
 
 
 
