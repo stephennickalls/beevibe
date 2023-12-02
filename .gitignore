@@ -78,3 +78,5 @@ logs/
 
 
 secret.py
+
+/static/

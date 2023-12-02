@@ -13,6 +13,8 @@ drf-nested-routers = "*"
 djangorestframework-simplejwt = "*"
 social-auth-app-django = "*"
 djoser = "*"
+whitenoise = "*"
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"
