@@ -246,6 +246,8 @@ class ApiaryHubConfViewSet(ViewSet):
     def get_config(self, request, pk=None):
         try:
             hub = ApiaryHub.objects.get(api_key=pk)
+            if hub.config_sensors == False:
+                return Response({'no configuration change detected'}, status=304)
             sensors = Sensor.objects.filter(hive__apiary__hub__api_key=pk)
             serializer = SensorSerializer(sensors, many=True)
             response_data = {
