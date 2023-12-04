@@ -7,7 +7,7 @@ from . import views
 # Your routers definition
 router = routers.DefaultRouter()
 router.register('apiaries', views.ApiaryViewSet, basename='apiaries')
-router.register('apiaryhubconfig', views.ApiaryHubConfViewSet, basename='apiaryhubconfig')
+router.register('hubconfig', views.ApiaryHubConfViewSet, basename='hubconfig')
 router.register('datacollection', views.DataCollectionViewSet, basename='datacollection')
 
 
