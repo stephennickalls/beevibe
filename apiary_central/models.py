@@ -119,7 +119,6 @@ class SensorType(models.Model):
 
 class Sensor(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
-    ble_charateristic_uuid = models.UUIDField(unique=True, default=uuid4, verbose_name="BLE Characteristic UUID")
     sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     last_reading = models.DecimalField(max_digits=5, decimal_places=2, 

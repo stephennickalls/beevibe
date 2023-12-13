@@ -92,7 +92,7 @@ class SensorTypeAdmin(admin.ModelAdmin):
 
 @admin.register(models.Sensor)
 class SensorAdmin(admin.ModelAdmin):
-    list_display = ['uuid', 'ble_charateristic_uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+    list_display = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
     autocomplete_fields = ['hive', 'sensor_type']
     search_fields = ['uuid', 'sensor_type__name']
     list_per_page = 10
