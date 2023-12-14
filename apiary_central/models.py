@@ -50,6 +50,9 @@ class HiveComponent(models.Model):
 class TransmissionTimeSlot(models.Model):
     timeslot = models.IntegerField(unique=True)
 
+    def __str__(self):
+        return str(self.timeslot)
+
 
 
 
