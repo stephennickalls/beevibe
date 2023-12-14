@@ -16,7 +16,7 @@ from rest_framework.viewsets import ModelViewSet, ViewSet, GenericViewSet
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework import status
 from rest_framework import serializers
-from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub
+from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub, TransmissionTimeSlot
 from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
 
 
@@ -246,13 +246,19 @@ class ApiaryHubConfViewSet(ViewSet):
     def get_config(self, request, pk=None):
         try:
             hub = ApiaryHub.objects.get(api_key=pk)
-            if hub.config_sensors  == False:
-                return Response({'message': 'no change'}, status=status.HTTP_200_OK)
+
+            # Check if the timeslot exists
+            try:
+                timeslot_value = hub.timeslot.timeslot
+            except TransmissionTimeSlot.DoesNotExist:
+                timeslot_value = 0
+
             sensors = Sensor.objects.filter(hive__apiary__hub__api_key=pk)
             serializer = SensorSerializer(sensors, many=True)
             response_data = {
-                'sensors': serializer.data,
-                'configSensors': hub.config_sensors
+                'timeslot_offset': timeslot_value,
+                'config_sensors': hub.config_sensors,
+                'sensors': serializer.data
             }
             # Reset the config_sensors flag after sending the response
             # hub.config_sensors = False

@@ -82,7 +82,6 @@ class ApiaryHubSerializer(serializers.ModelSerializer):
 
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
-    ble_charateristic_uuid = serializers.UUIDField()
     hive = serializers.PrimaryKeyRelatedField(queryset=Hive.objects.all(), required=False, allow_null=True)
     last_reading = serializers.DecimalField(
         max_digits=5, 
@@ -96,7 +95,7 @@ class SensorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sensor
-        fields = ['uuid', 'ble_charateristic_uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+        fields = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
 
 
 class SensorDataSerializer(serializers.ModelSerializer):

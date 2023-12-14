@@ -48,10 +48,9 @@ class HiveComponent(models.Model):
     
 
 class TransmissionTimeSlot(models.Model):
-    slot_indicator = models.IntegerField(unique=True)
+    timeslot = models.IntegerField(unique=True)
 
-    def __str__(self):
-        return f"Slot {self.slot_indicator}"
+
 
 
 
@@ -69,7 +68,7 @@ class ApiaryHub(models.Model):
                                         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    transmission_slot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.SET_NULL, null=True, blank=True)
+    timeslot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.PROTECT)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hub')
 
     def save(self, *args, **kwargs):

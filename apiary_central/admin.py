@@ -41,7 +41,7 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(models.TransmissionTimeSlot)
 class TransmissionTimeSlotAdmin(admin.ModelAdmin):
-    list_display = ['slot_indicator']
+    list_display = ['timeslot']
 
 @admin.register(models.Apiary)
 class ApiaryAdmin(admin.ModelAdmin):
