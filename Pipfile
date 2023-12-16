@@ -16,6 +16,7 @@ djoser = "*"
 whitenoise = "*"
 gunicorn = "*"
 dj-database-url = "*"
+pytz = "*"
 
 [dev-packages]
 pytest = "*"

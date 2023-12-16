@@ -245,7 +245,10 @@ class ApiaryHubConfViewSet(ViewSet):
     @action(detail=True, methods=['get'])
     def get_config(self, request, pk=None):
         try:
+            # get hub object
             hub = ApiaryHub.objects.get(api_key=pk)
+            # get current time for apiary timezone
+            current_time = hub.get_current_time()
 
             # Check if the timeslot exists
             try:
@@ -256,6 +259,7 @@ class ApiaryHubConfViewSet(ViewSet):
             sensors = Sensor.objects.filter(hive__apiary__hub__api_key=pk)
             serializer = SensorSerializer(sensors, many=True)
             response_data = {
+                'current_timezone_time': current_time,
                 'timeslot_offset': timeslot_value,
                 'config_sensors': hub.config_sensors,
                 'sensors': serializer.data

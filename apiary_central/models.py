@@ -4,7 +4,9 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Count
+from django.utils import timezone
 from .utils import UUIDs
+import pytz
 
 
 
@@ -12,9 +14,15 @@ class Apiary(models.Model):
     name = models.CharField(max_length=255)
     latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])  # Accepts values from -90 to 90
     longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])  # Accepts values from -180 to 180
+    timezone = models.CharField(
+        max_length=50, 
+        choices=[(tz, tz) for tz in pytz.all_timezones], 
+        default='Pacific/Auckland'
+    )
     description = models.TextField(null=True, blank=True)
     registration_number = models.CharField(max_length=255, unique=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='apiaries')
+
 
     def __str__(self):
         return self.name
@@ -78,6 +86,10 @@ class ApiaryHub(models.Model):
         if not self.pk:  # Check if it's a new instance
             self.transmission_slot = self.get_least_populated_slot()
         super(ApiaryHub, self).save(*args, **kwargs)
+
+    def get_current_time(self):
+        apiary_timezone = pytz.timezone(self.apiary.timezone)
+        return timezone.now().astimezone(apiary_timezone)
 
     @staticmethod
     def get_least_populated_slot():
