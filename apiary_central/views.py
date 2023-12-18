@@ -249,6 +249,7 @@ class ApiaryHubConfViewSet(ViewSet):
             hub = ApiaryHub.objects.get(api_key=pk)
             # get current time for apiary timezone
             current_time = hub.get_current_time()
+            current_time = current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
             # Check if the timeslot exists
             try:
