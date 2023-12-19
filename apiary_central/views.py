@@ -271,7 +271,17 @@ class ApiaryHubConfViewSet(ViewSet):
             return Response(response_data)
         except ApiaryHub.DoesNotExist:
             return Response({'error': 'Hub not found'}, status=status.HTTP_404_NOT_FOUND)
-
+        
+    @action(detail=True, methods=['patch'])
+    def toggle_sensor_config_flag(self, request, pk=None):
+        try:
+            # get hub object
+            hub = ApiaryHub.objects.get(api_key=pk)
+            hub.config_sensors = not hub.config_sensors
+            hub.save()
+            return Response({'message': 'Config sensors flag updated successfully'}, status=status.HTTP_200_OK)
+        except ApiaryHub.DoesNotExist:
+            return Response({'error': 'Hub not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
