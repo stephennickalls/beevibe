@@ -16,8 +16,8 @@ from rest_framework.viewsets import ModelViewSet, ViewSet, GenericViewSet
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework import status
 from rest_framework import serializers
-from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub, TransmissionTimeSlot
-from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer
+from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub, TransmissionTimeSlot, DeviceErrorReport
+from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer, DeviceErrorReportSerializer
 
 
 class ApiaryViewSet(ModelViewSet):
@@ -88,7 +88,8 @@ class DataCollectionViewSet(ViewSet):
                 "datatransmission": "/datacollection/datatransmission/",
                 "datatransmissionlogs": "/datacollection/datatransmissionlogs/",
                 "apiaryhubs": "/datacollection/apiaryhubs/",
-                "sensors": "/datacollection/sensors/"
+                "sensors": "/datacollection/sensors/",
+                "deviceerrorreports": "/datacollection/deviceerrorreports/",
             }
         })
 
@@ -239,9 +240,7 @@ class DataTransmissionViewSet(CreateAPIView):
 
 
 class ApiaryHubConfViewSet(ViewSet):
-
     # api/apiaryhubconfig/<uuid>/get_config/
-
     @action(detail=True, methods=['get'])
     def get_config(self, request, pk=None):
         try:
@@ -284,7 +283,11 @@ class ApiaryHubConfViewSet(ViewSet):
             return Response({'error': 'Hub not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class DeviceErrorReportViewSet(ModelViewSet):
+    queryset = DeviceErrorReport.objects.all()
+    serializer_class = DeviceErrorReportSerializer
 
+    # TODO: auth here/permissions
 
 
 

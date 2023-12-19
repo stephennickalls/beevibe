@@ -80,6 +80,7 @@ class ApiaryHub(models.Model):
                                         null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     timeslot = models.ForeignKey(TransmissionTimeSlot, on_delete=models.PROTECT)
+    has_error = models.BooleanField(default=False)
     apiary = models.ForeignKey(Apiary, on_delete=models.CASCADE, related_name='hub')
 
     def save(self, *args, **kwargs):
@@ -135,8 +136,7 @@ class Sensor(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
     sensor_type = models.ForeignKey(SensorType, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    last_reading = models.DecimalField(max_digits=5, decimal_places=2, 
-                                       validators=[MinValueValidator(0.0), MaxValueValidator(400.0)], null=True, blank=True)
+    has_error = models.BooleanField(default=False)
     hive = models.ForeignKey(Hive, null=True, blank=True, on_delete=models.CASCADE, related_name='sensors')
 
     def __str__(self):
@@ -155,6 +155,25 @@ class SensorData(models.Model):
     class Meta:
         verbose_name = "Sensor data"
         verbose_name_plural = "Sensor data"
+
+
+class DeviceErrorReport(models.Model):
+    SENSOR = 'sensor'
+    HUB = 'hub'
+
+    DEVICE_TYPE_CHOICES = [
+        (SENSOR, 'Sensor'),
+        (HUB, 'Hub'),
+    ]
+
+    device_type = models.CharField(max_length=10, choices=DEVICE_TYPE_CHOICES)
+    device_id = models.CharField(max_length=255)  # PK or UUID of the device
+    error_message = models.TextField()
+    reported_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Error in {self.device_type} ({self.device_id}): {self.error_message}"
+
 
 
 class DataTransmissionLog(models.Model):

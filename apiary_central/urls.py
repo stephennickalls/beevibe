@@ -27,13 +27,24 @@ datacollection_apiaryhubs_detail = views.ApiaryHubViewSet.as_view({
     'patch': 'partial_update',  
     'delete': 'destroy',  
 })
-# Instead of using the nested router for datacollection, manually define the URL
 datacollection_sensors_list = views.SensorViewSet.as_view({
     'get': 'list',  
     'post': 'create',  
 })
 
 datacollection_sensors_detail = views.SensorViewSet.as_view({
+    'get': 'retrieve',  
+    'put': 'update',  
+    'patch': 'partial_update',  
+    'delete': 'destroy',  
+})
+
+datacollection_device_error_report_list = views.DeviceErrorReportViewSet.as_view({
+    'get': 'list',  
+    'post': 'create',  
+})
+
+datacollection_device_error_report_detail = views.DeviceErrorReportViewSet.as_view({
     'get': 'retrieve',  
     'put': 'update',  
     'patch': 'partial_update',  
@@ -50,5 +61,7 @@ urlpatterns = [
     path('datacollection/sensors/<uuid:pk>/', datacollection_sensors_detail, name='datacollection-sensors-detail'),
     path('datacollection/datatransmission/', views.DataTransmissionViewSet.as_view(), name='datacollection-datatransmission-create'),
     path('datacollection/datatransmissionlogs/', views.DataTransmissionLogViewSet.as_view(), name='datacollection-datatransmissionlogs'),
+    path('datacollection/deviceerrorreports/', datacollection_device_error_report_list, name='datacollection-deviceerrorreports-list'),
+    path('datacollection/deviceerrorreports/', datacollection_device_error_report_detail, name='datacollection-deviceerrorreports-detail'),
 
 ]

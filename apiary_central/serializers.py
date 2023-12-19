@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog, DeviceErrorReport
 from rest_framework import serializers
 from .validators import validate_datetime_format
 
@@ -96,6 +96,11 @@ class SensorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sensor
         fields = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+
+class DeviceErrorReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceErrorReport
+        fields = ['device_type', 'device_id', 'error_message', 'reported_at']
 
 
 class SensorDataSerializer(serializers.ModelSerializer):

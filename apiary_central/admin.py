@@ -54,7 +54,7 @@ class ApiaryAdmin(admin.ModelAdmin):
 class ApiaryHubAdmin(admin.ModelAdmin):
     autocomplete_fields = ['apiary']
     model = models.ApiaryHub
-    list_display = ['id', 'api_key', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description']
+    list_display = ['id', 'api_key', 'created_at', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description', 'has_error']
     list_per_page = 10
 
 @admin.register(models.HiveComponentType)
@@ -92,10 +92,17 @@ class SensorTypeAdmin(admin.ModelAdmin):
 
 @admin.register(models.Sensor)
 class SensorAdmin(admin.ModelAdmin):
-    list_display = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+    list_display = ['uuid', 'sensor_type', 'created_at', 'has_error', 'hive']
     autocomplete_fields = ['hive', 'sensor_type']
     search_fields = ['uuid', 'sensor_type__name']
     list_per_page = 10
+
+@admin.register(models.DeviceErrorReport)
+class DeviceErrorReportAdmin(admin.ModelAdmin):
+    list_display = ['device_type', 'device_id', 'error_message', 'reported_at']
+    search_fields = ['device_id', 'error_message']
+    list_per_page = 10
+
 
 @admin.register(models.DataTransmission)
 class DataTransmissionAdmin(admin.ModelAdmin):
