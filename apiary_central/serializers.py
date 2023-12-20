@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog, DeviceErrorReport
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog, DeviceErrorReport, TransmissionTimeSlot
 from rest_framework import serializers
 from .validators import validate_datetime_format
 
@@ -75,27 +75,20 @@ def update(self, instance, validated_data):
 class ApiaryHubSerializer(serializers.ModelSerializer):
     api_key = serializers.UUIDField(read_only=True)
     apiary = serializers.PrimaryKeyRelatedField(queryset=Apiary.objects.all())
+    timeslot = serializers.PrimaryKeyRelatedField(queryset=TransmissionTimeSlot.objects.all())
     last_connected_at = serializers.DateTimeField(validators=[validate_datetime_format])
     class Meta:
         model = ApiaryHub
-        fields = ['api_key', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description', 'apiary']
+        fields = ['api_key', 'type', 'end_date', 'last_connected_at', 'battery_level', 'software_version', 'description', 'timeslot', 'has_error', 'apiary']
 
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
     hive = serializers.PrimaryKeyRelatedField(queryset=Hive.objects.all(), required=False, allow_null=True)
-    last_reading = serializers.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
-        required=False, 
-        allow_null=True,
-        min_value=0.0,  # Minimum value
-        max_value=400.0  # Maximum value
-    )
-    sensor_type = serializers.CharField(source='sensor_type.type')
+    sensor_type = serializers.CharField(source='sensor_type.type', read_only=True)
 
     class Meta:
         model = Sensor
-        fields = ['uuid', 'sensor_type', 'created_at', 'last_reading', 'hive']
+        fields = ['uuid', 'sensor_type', 'created_at', 'has_error', 'hive']
 
 class DeviceErrorReportSerializer(serializers.ModelSerializer):
     class Meta:

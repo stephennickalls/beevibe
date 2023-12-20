@@ -47,24 +47,23 @@ class TestSensorPermissions(APITestCase):
 
         self.sensor1 = Sensor.objects.create(
             sensor_type = self.sensor_type_weight,
-            last_reading = 98,
+            has_error = False,
             hive = self.hive1 # belongs to user1
         )
         self.sensor2 = Sensor.objects.create(
             sensor_type = self.sensor_type_weight,
-            last_reading = 98,
+            has_error = False,
             hive = self.hive2 # belongs to user2
         )
 
         
 
     def test_if_user_is_authenticated_creating_sensor_returns_201(self):
-        self.client.force_authenticate(user=self.user1) # authenticated
+        self.client.force_authenticate(user=self.user1)  # authenticated
         data = {
-            'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 98,
-            'hive':  self.hive1
-
+            'sensor_type': self.sensor_type_weight.pk,  # Use the primary key of sensor_type
+            'has_error': False,
+            'hive': self.hive1.pk  # Use the primary key of the hive
         }
         response = self.client.post(f'/api/datacollection/sensors/', data)
         assert response.status_code == status.HTTP_201_CREATED
@@ -73,7 +72,7 @@ class TestSensorPermissions(APITestCase):
     def test_if_user_is_anonymous_creating_sensor_returns_401(self):
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 98,
+            'has_error': False,
             'hive':  self.hive1
 
         }
@@ -85,7 +84,7 @@ class TestSensorPermissions(APITestCase):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 98,
+            'has_error': False,
             'hive':  self.hive2 # hive belongs to user2
 
         }
@@ -140,7 +139,7 @@ class TestSensorPermissions(APITestCase):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 102,
+            'has_error': False,
             'hive':  self.hive1 
 
         }
@@ -148,13 +147,13 @@ class TestSensorPermissions(APITestCase):
         response = self.client.patch(f'/api/datacollection/sensors/{sensor_id}/', data) 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.sensor1.refresh_from_db()
-        assert self.sensor1.last_reading == 102
+        assert self.sensor1.has_error == False
 
     def test_user_cannot_update_other_users_hive_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 105,
+            'has_error': False,
             'hive':  self.hive2 # user2's hive
         }
         sensor_id = self.sensor2.uuid # user2's sensor
@@ -165,7 +164,7 @@ class TestSensorPermissions(APITestCase):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 102,
+            'has_error': False,
             'hive':  self.hive1 # belongs to user1
 
         }
@@ -173,4 +172,4 @@ class TestSensorPermissions(APITestCase):
         response = self.client.patch(f'/api/datacollection/sensors/{sensor_id}/', data) 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.sensor1.refresh_from_db()
-        assert self.sensor1.last_reading == 102
+        assert self.sensor1.has_error == False

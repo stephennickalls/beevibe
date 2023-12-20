@@ -287,7 +287,7 @@ class DeviceErrorReportViewSet(ModelViewSet):
     queryset = DeviceErrorReport.objects.all()
     serializer_class = DeviceErrorReportSerializer
 
-    # TODO: auth here/permissions
+    # TODO: Permissions
 
 
 

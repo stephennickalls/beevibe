@@ -47,6 +47,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.7,
             software_version = 1.11,
             description = 'Great description',
+            timeslot = 6,
+            has_error = False,
             apiary = self.apiary1
         )
 
@@ -57,6 +59,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.8,
             software_version = 1.10,
             description = 'Great description of apiary hub 2',
+            timeslot = 6,
+            has_error = False,
             apiary = self.apiary2
         )
         self.staffapiaryhub = ApiaryHub.objects.create(
@@ -66,6 +70,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.9,
             software_version = 1.00,
             description = 'Great description of apiary hub 3',
+            timeslot = 6,
+            has_error = False,
             apiary = self.staffapiary
         )
 
@@ -78,6 +84,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
+            'timeslot': 6,
+            'has_error': False,
             'apiary': self.apiary1.pk
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', valid_data)
@@ -92,6 +100,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
+            'timeslot': 6,
+            'has_error': False,
             'apiary': self.apiary1.pk
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -106,6 +116,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
+            'timeslot': 6,
+            'has_error': False,
             'apiary': self.apiary1.pk
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', valid_data)
@@ -120,6 +132,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
+            'timeslot': 6,
+            'has_error': False,
             'apiary': self.apiary2.pk # apiary2 belongs to user2
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)

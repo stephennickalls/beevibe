@@ -3,7 +3,7 @@ from decimal import Decimal
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
-from apiary_central.models import Apiary, ApiaryHub
+from apiary_central.models import Apiary, ApiaryHub, TransmissionTimeSlot
 
 
 User = get_user_model()
@@ -38,7 +38,10 @@ class TestApiaryHubPermissions(APITestCase):
                 registration_number='ui9989',
                 owner=self.staffuser
         )
-        
+
+        self.timeslot6 = TransmissionTimeSlot.objects.create(
+            timeslot = 6,
+        )
 
         self.apiaryhub1 = ApiaryHub.objects.create(
             type = 'esp32',
@@ -47,6 +50,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.7,
             software_version = 1.11,
             description = 'Great description',
+            timeslot = self.timeslot6,
+            has_error = False,
             apiary = self.apiary1
         )
 
@@ -57,6 +62,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.8,
             software_version = 1.10,
             description = 'Great description of apiary hub 2',
+            timeslot = self.timeslot6,
+            has_error = False,
             apiary = self.apiary2
         )
         self.apiaryhub3 = ApiaryHub.objects.create(
@@ -66,6 +73,8 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.9,
             software_version = 1.00,
             description = 'Great description of apiary hub 3',
+            timeslot = self.timeslot6,
+            has_error = False,
             apiary = self.apiary3
         )
 
@@ -78,6 +87,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', valid_data)
@@ -93,6 +104,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -107,6 +120,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -121,6 +136,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': -3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -136,6 +153,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 101,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -150,6 +169,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 101,
             'software_version': 11.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -164,6 +185,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 4.5,
             'software_version': 110.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -178,6 +201,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level ': 4.9,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             # 'apiary': self.apiary1.id 
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -192,6 +217,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -207,6 +234,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -222,6 +251,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -237,6 +268,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': '3.5',
             'software_version': 1.20,
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -253,6 +286,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': '1.20',
             'description': 'Test hub description',
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)
@@ -269,6 +304,8 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 3.5,
             'software_version': 1.20,
             'description': False,
+            'timeslot': self.timeslot6.id,
+            'has_error': False,
             'apiary': self.apiary1.id # apiary owned by user1
         }
         response = self.client.post('/api/datacollection/apiaryhubs/', data)

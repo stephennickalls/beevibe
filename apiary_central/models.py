@@ -62,9 +62,6 @@ class TransmissionTimeSlot(models.Model):
         return str(self.timeslot)
 
 
-
-
-
 class ApiaryHub(models.Model):
     api_key = models.UUIDField(unique=True, default=UUIDs.generate_api_key)
     config_sensors = models.BooleanField(default=False)
@@ -165,7 +162,6 @@ class DeviceErrorReport(models.Model):
         (SENSOR, 'Sensor'),
         (HUB, 'Hub'),
     ]
-
     device_type = models.CharField(max_length=10, choices=DEVICE_TYPE_CHOICES)
     device_id = models.CharField(max_length=255)  # PK or UUID of the device
     error_message = models.TextField()
