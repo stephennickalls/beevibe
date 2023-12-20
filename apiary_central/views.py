@@ -76,22 +76,22 @@ class HiveViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     
-class DataCollectionViewSet(ViewSet):
-    """
-    A ViewSet that represents the 'datacollection' endpoint.
-    """
+# class DataCollectionViewSet(ViewSet):
+#     """
+#     A ViewSet that represents the 'datacollection' endpoint.
+#     """
 
-    def list(self, request):
-        return Response({
-            "message": "This is the Data Collection endpoint.",
-            "endpoints": {
-                "datatransmission": "/datacollection/datatransmission/",
-                "datatransmissionlogs": "/datacollection/datatransmissionlogs/",
-                "apiaryhubs": "/datacollection/apiaryhubs/",
-                "sensors": "/datacollection/sensors/",
-                "deviceerrorreports": "/datacollection/deviceerrorreports/",
-            }
-        })
+#     def list(self, request):
+#         return Response({
+#             "message": "This is the Data Collection endpoint.",
+#             "endpoints": {
+#                 "datatransmission": "/datacollection/datatransmission/",
+#                 "datatransmissionlogs": "/datacollection/datatransmissionlogs/",
+#                 "apiaryhubs": "/datacollection/apiaryhubs/",
+#                 "sensors": "/datacollection/sensors/",
+#                 "deviceerrorreports": "/datacollection/deviceerrorreports/",
+#             }
+#         })
 
 
 class ApiaryHubViewSet(ModelViewSet):
@@ -99,17 +99,23 @@ class ApiaryHubViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        print("############### get_queryset called")
         user = self.request.user
         if user.is_staff:
             return ApiaryHub.objects.all()
         else:
             # Filter based on ownership of the apiary
             return ApiaryHub.objects.filter(apiary__owner=user)
+        
 
     def get_object(self):
+        print("############### get_object called")
         # Override the default behavior to use 'api_key' instead of 'pk'
-        api_key = self.kwargs.get('api_key')
+        api_key = self.kwargs.get('pk')
         user = self.request.user
+        print(f"api_key = {api_key}")
+        print("kwargs in get_object:", self.kwargs)
+
 
         # Modify the query to ensure that the object belongs to the user's apiaries
         queryset = self.filter_queryset(self.get_queryset())

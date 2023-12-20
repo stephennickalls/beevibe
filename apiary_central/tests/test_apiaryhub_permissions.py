@@ -2,7 +2,7 @@ import pytest
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
-from apiary_central.models import Apiary, ApiaryHub
+from apiary_central.models import Apiary, ApiaryHub,TransmissionTimeSlot
 from apiary_central.utils import UUIDs
 
 
@@ -38,6 +38,10 @@ class TestApiaryHubPermissions(APITestCase):
                 registration_number='ui9989',
                 owner=self.staffuser
         )
+
+        self.timeslot6 = TransmissionTimeSlot.objects.create(
+            timeslot = 6,
+        )
         
 
         self.apiaryhub1 = ApiaryHub.objects.create(
@@ -47,7 +51,7 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.7,
             software_version = 1.11,
             description = 'Great description',
-            timeslot = 6,
+            timeslot = self.timeslot6,
             has_error = False,
             apiary = self.apiary1
         )
@@ -59,7 +63,7 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.8,
             software_version = 1.10,
             description = 'Great description of apiary hub 2',
-            timeslot = 6,
+            timeslot = self.timeslot6,
             has_error = False,
             apiary = self.apiary2
         )
@@ -70,7 +74,7 @@ class TestApiaryHubPermissions(APITestCase):
             battery_level = 4.9,
             software_version = 1.00,
             description = 'Great description of apiary hub 3',
-            timeslot = 6,
+            timeslot = self.timeslot6,
             has_error = False,
             apiary = self.staffapiary
         )
@@ -84,7 +88,7 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
-            'timeslot': 6,
+            'timeslot': self.timeslot6.id,
             'has_error': False,
             'apiary': self.apiary1.pk
         }
@@ -100,7 +104,7 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
-            'timeslot': 6,
+            'timeslot': self.timeslot6.id,
             'has_error': False,
             'apiary': self.apiary1.pk
         }
@@ -116,7 +120,7 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
-            'timeslot': 6,
+            'timeslot': self.timeslot6.id,
             'has_error': False,
             'apiary': self.apiary1.pk
         }
@@ -132,7 +136,7 @@ class TestApiaryHubPermissions(APITestCase):
             'battery_level': 4.7,
             'software_version': 1.11,
             'description': 'Great description',
-            'timeslot': 6,
+            'timeslot': self.timeslot6.id,
             'has_error': False,
             'apiary': self.apiary2.pk # apiary2 belongs to user2
         }

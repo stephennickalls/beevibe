@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog, DeviceErrorReport, TransmissionTimeSlot
+from .models import Apiary, Hive, HiveComponent, Sensor, SensorData, HiveComponentType, ApiaryHub, DataTransmissionLog, DeviceErrorReport, TransmissionTimeSlot, SensorType
 from rest_framework import serializers
 from .validators import validate_datetime_format
 
@@ -84,7 +84,7 @@ class ApiaryHubSerializer(serializers.ModelSerializer):
 class SensorSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(read_only=True)
     hive = serializers.PrimaryKeyRelatedField(queryset=Hive.objects.all(), required=False, allow_null=True)
-    sensor_type = serializers.CharField(source='sensor_type.type', read_only=True)
+    sensor_type = serializers.PrimaryKeyRelatedField(queryset=SensorType.objects.all())
 
     class Meta:
         model = Sensor
