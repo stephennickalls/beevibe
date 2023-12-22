@@ -34,6 +34,6 @@ urlpatterns = [
         'delete': 'destroy'
     }), name='datacollection-apiaryhubs-detail'),
 
-    path('datatransmission/', views.DataTransmissionViewSet.as_view(), name='datacollection-datatransmission'),
-    path('datatransmissionlogs/', views.DataTransmissionLogViewSet.as_view(), name='datacollection-datatransmissionlogs'),
+    path('datacollection/datatransmission/', views.DataTransmissionViewSet.as_view(), name='datacollection-datatransmission'),
+    path('datacollection/datatransmissionlogs/', views.DataTransmissionLogViewSet.as_view(), name='datacollection-datatransmissionlogs'),
 ]

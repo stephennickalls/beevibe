@@ -50,12 +50,12 @@ class TestSensorValidations(APITestCase):
 
         self.sensor1 = Sensor.objects.create(
             sensor_type = self.sensor_type_weight,
-            last_reading = 98,
+            has_error = False,
             hive = self.hive1 # belongs to user1
         )
         self.sensor2 = Sensor.objects.create(
             sensor_type = self.sensor_type_weight,
-            last_reading = 98,
+            has_error = False,
             hive = self.hive2 # belongs to user2
         )
 
@@ -63,7 +63,7 @@ class TestSensorValidations(APITestCase):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 98,
+            'has_error': False,
             'hive':  self.hive1
         }
         response = self.client.post(f'/api/datacollection/sensors/', data)
@@ -74,58 +74,18 @@ class TestSensorValidations(APITestCase):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': True,
-            'last_reading': 98,
+            'has_error': False,
             'hive':  self.hive1
         }
         response = self.client.post(f'/api/datacollection/sensors/', data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_sensor_creation_with_invalid_data_type_in_last_reading_returns_400(self):
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': True,
-            'hive':  self.hive1
-        }
-        response = self.client.post(f'/api/datacollection/sensors/', data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    def test_sensor_creation_with_string_decimal_cast_to_decimal_returns_201(self):
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': '102',
-            'hive':  self.hive1
-        }
-        response = self.client.post(f'/api/datacollection/sensors/', data)
-        assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['last_reading'] == Decimal('102')
-
-    def test_sensor_creation_with_negative_last_reading_returns_400(self):
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': -1,
-            'hive':  self.hive1
-        }
-        response = self.client.post(f'/api/datacollection/sensors/', data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    def test_sensor_creation_with_last_reading_greater_than_500_returns_400(self):
-        self.client.force_authenticate(user=self.user1)
-        data = {
-            'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': 501,
-            'hive':  self.hive1
-        }
-        response = self.client.post(f'/api/datacollection/sensors/', data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_sensor_creation_with_hive_that_does_not_exist_returns_404(self):
         self.client.force_authenticate(user=self.user1)
         data = {
             'sensor_type': self.sensor_type_weight.pk,
-            'last_reading': -1,
+            'has_error': False,
             'hive':  7
         }
         response = self.client.post(f'/api/datacollection/sensors/', data)

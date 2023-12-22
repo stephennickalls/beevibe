@@ -99,7 +99,6 @@ class ApiaryHubViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        print("############### get_queryset called")
         user = self.request.user
         if user.is_staff:
             return ApiaryHub.objects.all()
@@ -109,13 +108,9 @@ class ApiaryHubViewSet(ModelViewSet):
         
 
     def get_object(self):
-        print("############### get_object called")
         # Override the default behavior to use 'api_key' instead of 'pk'
         api_key = self.kwargs.get('pk')
         user = self.request.user
-        print(f"api_key = {api_key}")
-        print("kwargs in get_object:", self.kwargs)
-
 
         # Modify the query to ensure that the object belongs to the user's apiaries
         queryset = self.filter_queryset(self.get_queryset())
@@ -185,7 +180,7 @@ class DataTransmissionLogViewSet(RetrieveAPIView):
 
 
 class DataTransmissionViewSet(CreateAPIView):
-    serializer_class = SensorDataSerializer
+    serializer_class = DataTransmissionSerializer
     queryset = SensorData.objects.all()
     
 
@@ -194,11 +189,16 @@ class DataTransmissionViewSet(CreateAPIView):
         try:
             # Log the raw POST data
             raw_data = json.loads(request.body.decode('utf-8'))
+
             DataTransmissionLog.objects.create(raw_data=raw_data)
+            print("############ after creating data transmission object")
 
             serializer = DataTransmissionSerializer(data=request.data)
             if serializer.is_valid():
+                print("######### serializer was valid")
+                print(f"api key in validated data: {serializer.validated_data['api_key']}")
                 apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
+                print("we retieved the hub from DB")
                 data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
                 self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
                 return Response({"success": "Data transmission successfull"}, status=status.HTTP_201_CREATED)
@@ -206,7 +206,7 @@ class DataTransmissionViewSet(CreateAPIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except (ApiaryHub.DoesNotExist, Sensor.DoesNotExist, ValidationError, IntegrityError, json.JSONDecodeError) as e:
             # Rollback is automatic here due to the transaction.atomic decorator
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error 001": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # For any other unexpected error
             return Response({"unexpected_error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

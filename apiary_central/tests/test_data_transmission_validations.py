@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
-from apiary_central.models import Apiary, Hive, SensorType, Sensor, ApiaryHub, DataTransmission
+from apiary_central.models import Apiary, Hive, SensorType, Sensor, ApiaryHub, DataTransmission, TransmissionTimeSlot
 from apiary_central.utils import UUIDs
 
 User = get_user_model()
@@ -54,24 +54,29 @@ class TestDataTransmissionValidations(APITestCase):
 
         self.sensor1 = Sensor.objects.create(
             sensor_type = self.sensor_type_weight,
-            last_reading = 98,
+            has_error = False,
             hive = self.hive1 # belongs to user1
         )
         self.sensor2 = Sensor.objects.create(
-            sensor_type = self.sensor_type_temp,
-            last_reading = 98,
-            hive = self.hive1 # belongs to user1
+            sensor_type = self.sensor_type_weight,
+            has_error = False,
+            hive = self.hive2 # belongs to user2
         )
 
+        self.timeslot6 = TransmissionTimeSlot.objects.create(
+            timeslot = 6,
+        )
+        
+
         self.apiaryhub1 = ApiaryHub.objects.create(
-            api_key = "d441d182-bd2a-460a-89bf-cc354b09a0ff",
-            created_at = "2023-10-18T02:45:00Z",
             type = 'esp32',
             end_date = '2023-12-31',
-            last_connected_at = "2023-10-18T04:45:00Z",
-            battery_level = 4.8,
-            software_version = 1.1,
-            description = 'A test description',
+            last_connected_at = '2023-11-06T15:30:00.123456',
+            battery_level = 4.7,
+            software_version = 1.11,
+            description = 'Great description',
+            timeslot = self.timeslot6,
+            has_error = False,
             apiary = self.apiary1
         )
 
@@ -87,8 +92,8 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_valid_data_returns_201(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
-            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
+            "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0fb",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
             "end_timestamp": "2023-10-18T04:45:00Z",
@@ -115,6 +120,7 @@ class TestDataTransmissionValidations(APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
 
 
+
     def test_data_transmission_with_in_valid_api_key_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
@@ -134,7 +140,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_duplicate_transmission_uuid_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0fa", # duplicate uuid 
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -151,7 +157,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_neagative_transmission_tries_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": -2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -168,7 +174,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_transmission_tries_greater_than_1000_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": 1001,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -184,7 +190,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_transmission_tries_string_cast_to_decimal_returns_201(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": "50",
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -200,7 +206,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_invalid_start_time_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": 50,
             "start_timestamp": "2023-10-18",
@@ -216,7 +222,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_boolean_in_start_time_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff", 
             "transmission_tries": 50,
             "start_timestamp": True,
@@ -233,7 +239,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_invalid_end_time_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -249,7 +255,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_string_in_end_time_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -266,7 +272,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_negative_software_version_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -283,7 +289,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_software_version_greater_than_100_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -299,7 +305,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_negative_battery_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -315,7 +321,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_batter_greater_than_100_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -332,7 +338,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_decimal_type_cast_to_string_returns_201(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -348,7 +354,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_boolean_in_type_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -364,7 +370,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_with_sensor_uuid_that_does_not_exist_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -395,7 +401,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_readings_with_strinf_value_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -422,7 +428,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_invalid_reading_timestamp_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
@@ -452,7 +458,7 @@ class TestDataTransmissionValidations(APITestCase):
     def test_data_transmission_invalid_reading_value_returns_400(self):
         self.client.force_authenticate(user=self.user1)
         data = {
-            "api_key": "d441d182-bd2a-460a-89bf-cc354b09a0ff",
+            "api_key": self.apiaryhub1.api_key,
             "transmission_uuid": "a441d182-bd2a-460a-89bf-cc354b09a0ff",
             "transmission_tries": 2,
             "start_timestamp": "2023-10-18T02:45:00Z",
