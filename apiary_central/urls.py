@@ -34,6 +34,15 @@ urlpatterns = [
         'delete': 'destroy'
     }), name='datacollection-apiaryhubs-detail'),
 
+        # Custom path for ApiaryHub detail view using api_key
+    path('datacollection/deviceerrorreports/<uuid:api_key>/', views.DeviceErrorReportViewSet.as_view({
+        'get': 'retrieve', 
+        'put': 'update', 
+        'patch': 'partial_update', 
+        'delete': 'destroy'
+    }), name='datacollection-deviceerrorreports-detail'),
+    
+
     path('datacollection/datatransmission/', views.DataTransmissionViewSet.as_view(), name='datacollection-datatransmission'),
     path('datacollection/datatransmissionlogs/', views.DataTransmissionLogViewSet.as_view(), name='datacollection-datatransmissionlogs'),
 ]
