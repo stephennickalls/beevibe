@@ -9,6 +9,7 @@ api_router.register('apiaries', views.ApiaryViewSet, basename='apiaries')
 
 # Data Collection router for API key authenticated routes
 datacollection_router = routers.DefaultRouter()
+datacollection_router.register('hubconfig', views.ApiaryHubConfViewSet, basename='hubconfig')
 datacollection_router.register('apiaryhubs', views.ApiaryHubViewSet, basename='apiaryhubs')
 datacollection_router.register('sensors', views.SensorViewSet, basename='sensors')
 datacollection_router.register('deviceerrorreports', views.DeviceErrorReportViewSet, basename='deviceerrorreports')

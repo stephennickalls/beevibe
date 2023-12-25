@@ -91,9 +91,26 @@ class SensorSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'sensor_type', 'created_at', 'has_error', 'hive']
 
 class DeviceErrorReportSerializer(serializers.ModelSerializer):
+    api_key = serializers.CharField(write_only=True)
+
     class Meta:
         model = DeviceErrorReport
-        fields = ['device_type', 'device_id', 'error_message', 'reported_at']
+        fields = ['device_type', 'device_id', 'error_message', 'reported_at', "api_key"]
+
+    def validate_api_key(self, value):
+        # print("valiudate api key called")
+        if not ApiaryHub.objects.filter(api_key=value):
+            raise serializers.ValidationError("Invalid API key.")
+        return value
+
+    def create(self, validated_data):
+        
+        # Remove 'api_key' from validated_data as it's not a model field
+        validated_data.pop('api_key', None)
+        # print(f"serializer create called. validated data: {validated_data}")
+
+        # Create a DeviceErrorReport instance with the modified validated_data
+        return DeviceErrorReport.objects.create(**validated_data)
 
 
 class SensorDataSerializer(serializers.ModelSerializer):
@@ -136,6 +153,8 @@ class DataTransmissionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataTransmissionLog
         fields = ['raw_data', 'create_at']
+
+
 
  
 

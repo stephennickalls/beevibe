@@ -191,14 +191,14 @@ class DataTransmissionViewSet(CreateAPIView):
             raw_data = json.loads(request.body.decode('utf-8'))
 
             DataTransmissionLog.objects.create(raw_data=raw_data)
-            print("############ after creating data transmission object")
+            # print("############ after creating data transmission object")
 
             serializer = DataTransmissionSerializer(data=request.data)
             if serializer.is_valid():
-                print("######### serializer was valid")
-                print(f"api key in validated data: {serializer.validated_data['api_key']}")
+                # print("######### serializer was valid")
+                # print(f"api key in validated data: {serializer.validated_data['api_key']}")
                 apiary_hub = self.get_apiary_hub(serializer.validated_data['api_key'])
-                print("we retieved the hub from DB")
+                # print("we retieved the hub from DB")
                 data_transmission_record = self.create_data_transmission_record(serializer.validated_data, apiary_hub)
                 self.create_sensor_data(serializer.validated_data['data'], data_transmission_record)
                 return Response({"success": "Data transmission successfull"}, status=status.HTTP_201_CREATED)
@@ -246,6 +246,8 @@ class DataTransmissionViewSet(CreateAPIView):
 
 
 class ApiaryHubConfViewSet(ViewSet):
+    serializer_class = DataTransmissionSerializer
+    queryset = SensorData.objects.all()
     # api/apiaryhubconfig/<uuid>/get_config/
     @action(detail=True, methods=['get'])
     def get_config(self, request, pk=None):
@@ -292,6 +294,18 @@ class ApiaryHubConfViewSet(ViewSet):
 class DeviceErrorReportViewSet(ModelViewSet):
     queryset = DeviceErrorReport.objects.all()
     serializer_class = DeviceErrorReportSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # The serializer will save the DeviceErrorReport instance,
+        # excluding the 'api_key' which is not part of the model.
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 
     # TODO: Permissions
 
