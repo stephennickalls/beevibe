@@ -35,6 +35,10 @@ urlpatterns = [
         'delete': 'destroy'
     }), name='datacollection-apiaryhubs-detail'),
 
+    path('datacollection/hubconfig/<uuid:api_key>/get_config/', views.ApiaryHubConfViewSet.as_view({
+    'get': 'retrieve_config'  # Assuming you have a 'retrieve_config' method in your viewset
+    }), name='datacollection-hubconfig-getconfig'),
+
         # Custom path for ApiaryHub detail view using api_key
     path('datacollection/deviceerrorreports/<uuid:api_key>/', views.DeviceErrorReportViewSet.as_view({
         'get': 'retrieve', 
