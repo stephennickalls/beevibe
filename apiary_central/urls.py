@@ -36,8 +36,12 @@ urlpatterns = [
     }), name='datacollection-apiaryhubs-detail'),
 
     path('datacollection/hubconfig/<uuid:api_key>/get_config/', views.ApiaryHubConfViewSet.as_view({
-    'get': 'retrieve_config'  # Assuming you have a 'retrieve_config' method in your viewset
+    'get': 'retrieve_config'  
     }), name='datacollection-hubconfig-getconfig'),
+
+    path('datacollection/hubconfig/<uuid:api_key>/set_sensor_config_flag/', views.ApiaryHubConfViewSet.as_view({
+    'patch': 'partial_update'  
+    }), name='datacollection-hubconfig-setsensorconfigflag'),
 
         # Custom path for ApiaryHub detail view using api_key
     path('datacollection/deviceerrorreports/<uuid:api_key>/', views.DeviceErrorReportViewSet.as_view({

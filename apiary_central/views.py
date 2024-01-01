@@ -75,23 +75,6 @@ class HiveViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    
-# class DataCollectionViewSet(ViewSet):
-#     """
-#     A ViewSet that represents the 'datacollection' endpoint.
-#     """
-
-#     def list(self, request):
-#         return Response({
-#             "message": "This is the Data Collection endpoint.",
-#             "endpoints": {
-#                 "datatransmission": "/datacollection/datatransmission/",
-#                 "datatransmissionlogs": "/datacollection/datatransmissionlogs/",
-#                 "apiaryhubs": "/datacollection/apiaryhubs/",
-#                 "sensors": "/datacollection/sensors/",
-#                 "deviceerrorreports": "/datacollection/deviceerrorreports/",
-#             }
-#         })
 
 
 class ApiaryHubViewSet(ModelViewSet):
@@ -280,16 +263,29 @@ class ApiaryHubConfViewSet(ViewSet):
             return Response({'error': 'Hub not found'}, status=status.HTTP_404_NOT_FOUND)
         
     @action(detail=True, methods=['patch'])
-    def toggle_sensor_config_flag(self, request, pk=None):
+    def set_sensor_config_flag(self, request, pk=None):
         try:
-            # get hub object
-            hub = ApiaryHub.objects.get(api_key=pk)
-            hub.config_sensors = not hub.config_sensors
-            hub.save()
-            return Response({'message': 'Config sensors flag updated successfully'}, status=status.HTTP_200_OK)
-        except ApiaryHub.DoesNotExist:
-            return Response({'error': 'Hub not found'}, status=status.HTTP_404_NOT_FOUND)
+            # api_key is valid and get the hub object
+            try:
+                hub = ApiaryHub.objects.get(api_key=pk)
+            except ApiaryHub.DoesNotExist:
+                return Response({'error': 'Invalid API key or Hub not found'}, status=status.HTTP_404_NOT_FOUND)
 
+            # Extract the desired state from the request body
+            config_sensors_state = request.data.get('config_sensors')
+            if config_sensors_state is None:
+                raise ValidationError({'config_sensors': 'This field is required.'})
+            if not isinstance(config_sensors_state, bool):
+                raise ValidationError({'config_sensors': 'This field must be a boolean.'})
+
+            # Set the config_sensors attribute to the new state
+            hub.config_sensors = config_sensors_state
+            hub.save()
+
+            return Response({'message': 'Config sensors flag updated successfully'}, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class DeviceErrorReportViewSet(ModelViewSet):
     queryset = DeviceErrorReport.objects.all()
