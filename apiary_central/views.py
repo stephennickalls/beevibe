@@ -17,7 +17,7 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework import status
 from rest_framework import serializers
 from .models import Apiary, DataTransmissionLog, Hive, Sensor, SensorData, DataTransmission, ApiaryHub, TransmissionTimeSlot, DeviceErrorReport
-from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer, DeviceErrorReportSerializer
+from .serializers import ApiarySerializer, HiveSerializer, SensorSerializer, SensorDataSerializer, DataTransmissionSerializer, ApiaryHubSerializer, DeviceErrorReportSerializer, DeviceErrorReportsListSerializer
 
 
 class ApiaryViewSet(ModelViewSet):
@@ -289,21 +289,15 @@ class ApiaryHubConfViewSet(ViewSet):
 
 class DeviceErrorReportViewSet(ModelViewSet):
     queryset = DeviceErrorReport.objects.all()
-    serializer_class = DeviceErrorReportSerializer
+    serializer_class = DeviceErrorReportSerializer  # Used for other actions
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = DeviceErrorReportsListSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        # The serializer will save the DeviceErrorReport instance,
-        # excluding the 'api_key' which is not part of the model.
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-
-    # TODO: Permissions
+        # You may want to customize the response data
+        return Response({"message": "Error reports created successfully"}, status=status.HTTP_201_CREATED)
 
 
 

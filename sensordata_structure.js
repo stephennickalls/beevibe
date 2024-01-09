@@ -115,3 +115,20 @@
 ]
 
 
+{
+    "api_key": "33d4921b-051f-43de-bec7-b5986e71b041",
+    "errors": [
+        {
+            "device_type": "Type1",
+            "device_id": "DeviceID1",
+            "error_message": "Error message 1",
+            "reported_at": "2024-01-09T12:00:00"
+        },
+        {
+            "device_type": "Type2",
+            "device_id": "DeviceID2",
+            "error_message": "Error message 2",
+            "reported_at": "2024-01-09T12:05:00"
+        }
+    ]
+}

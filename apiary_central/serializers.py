@@ -91,26 +91,23 @@ class SensorSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'sensor_type', 'created_at', 'has_error', 'hive']
 
 class DeviceErrorReportSerializer(serializers.ModelSerializer):
-    api_key = serializers.CharField(write_only=True)
-
     class Meta:
         model = DeviceErrorReport
-        fields = ['device_type', 'device_id', 'error_message', 'reported_at', "api_key"]
+        fields = ['device_type', 'device_id', 'error_message', 'reported_at']
+
+class DeviceErrorReportsListSerializer(serializers.Serializer):
+    api_key = serializers.CharField(write_only=True)
+    errors = DeviceErrorReportSerializer(many=True)
 
     def validate_api_key(self, value):
-        # print("valiudate api key called")
-        if not ApiaryHub.objects.filter(api_key=value):
+        if not ApiaryHub.objects.filter(api_key=value).exists():
             raise serializers.ValidationError("Invalid API key.")
         return value
 
     def create(self, validated_data):
-        
-        # Remove 'api_key' from validated_data as it's not a model field
-        validated_data.pop('api_key', None)
-        # print(f"serializer create called. validated data: {validated_data}")
-
-        # Create a DeviceErrorReport instance with the modified validated_data
-        return DeviceErrorReport.objects.create(**validated_data)
+        errors_data = validated_data.pop('errors')
+        error_reports = [DeviceErrorReport.objects.create(**error_data) for error_data in errors_data]
+        return error_reports
 
 
 class SensorDataSerializer(serializers.ModelSerializer):
