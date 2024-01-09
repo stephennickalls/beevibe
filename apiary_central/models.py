@@ -155,17 +155,10 @@ class SensorData(models.Model):
 
 
 class DeviceErrorReport(models.Model):
-    SENSOR = 'sensor'
-    HUB = 'hub'
-
-    DEVICE_TYPE_CHOICES = [
-        (SENSOR, 'Sensor'),
-        (HUB, 'Hub'),
-    ]
-    device_type = models.CharField(max_length=10, choices=DEVICE_TYPE_CHOICES)
+    device_type = models.CharField(max_length=10)
     device_id = models.CharField(max_length=255)  # PK or UUID of the device
     error_message = models.TextField()
-    reported_at = models.DateTimeField(auto_now_add=True)
+    reported_at = models.DateTimeField()
 
     def __str__(self):
         return f"Error in {self.device_type} ({self.device_id}): {self.error_message}"
